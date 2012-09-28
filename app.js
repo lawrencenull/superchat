@@ -9,7 +9,8 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , socket_io = require('socket.io').listen(8080)
-  , Backbone = require('backbone');
+  , Backbone = require('backbone')
+  , fs = require('fs');
 
 /**
  * Express setup
@@ -45,6 +46,8 @@ http.createServer(app).listen(app.get('port'), function(){
   Backbone setup
   */
 
+Backbone.View.prototype._ensureElement = function () {};
+
 var UserModel = Backbone.Model.extend({
   defaults: {
     'name': 'New User'
@@ -68,7 +71,6 @@ var UsersCollection = Backbone.Collection.extend({
 var FileModel = Backbone.Model.extend({
     defaults: {
         'name': 'file.txt',
-        'data': 'data:',
         'author': 'New Author',
         'timestamp': 'New Date',
         'location': {
@@ -87,17 +89,64 @@ var FilesCollection = Backbone.Collection.extend({
     }
 });
 
+var FilesController = Backbone.View.extend({
+    initialize: function () {
+        var t = this;
+        this.filesCollection = new FilesCollection();
+        this.filesCollection.on('add', function (file) {
+            var data = file.get('data');
+            var name = file.get('name');
+            file.unset('data');
+            t.writeToDisk({name:name, data:data});
+        });
+    },
+    add: function (file) {
+        var data = file.data;
+        this.filesCollection.add(file);
+    },
+    getAllFiles: function () {
+        return this.filesCollection.toJSON();
+    },
+    writeToDisk: function (file) {
+        var data = this.convertFileToBinary(file.data);
+        fs.writeFile('./public/files/'+file.name, data, function (error) {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('File was saved: ./public/files/'+file.name);
+            }
+        });
+    },
+    convertFileToBinary: function (data) {
+        var index = 'base64,';
+        var trim = data.indexOf(index) + index.length;
+        var base64 = data.substring(trim);
+        return binary = new Buffer(base64, 'base64');
+    }
+
+});
+/*
+fs.writeFile("./files/test.txt", "Hey there!", function(err) {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("The file was saved!");
+    }
+});*/
+
 var AppController = Backbone.Model.extend({
   initialize: function () {
-    var filesCollection = new FilesCollection();
+    //var filesCollection = new FilesCollection();
+    var filesController = new FilesController();
     var usersCollection = new UsersCollection();
     this.on('newUser', function (user) {
       usersCollection.add({id: user.id });
-      user.emit( '_getAllFiles', filesCollection.toJSON() );
+      // user.emit( '_getAllFiles', filesCollection.toJSON() );
+      user.emit( '_getAllFiles', filesController.getAllFiles() );
       user.emit( '_getAllUsers', usersCollection.toJSON() );
     });
     this.on('newFileFromClient', function (file) {
-      filesCollection.add(file);
+      filesController.add(file);
     });
     this.on('newFileAdded', function (file) {
       socket_io.sockets.emit( '_newFile', file.toJSON() );
