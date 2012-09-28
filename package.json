@@ -1,13 +1,16 @@
 {
   "name": "application-name",
-  "version": "0.0.1-2",
+  "version": "0.0.1-9",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "express": "3.0.0rc4",
-    "jade": "*"
+    "jade": "*",
+    "http": "*",
+    "socket.io": "*",
+    "ejs": "*"
   },
   "subdomain": "mpuckett.node-express",
   "engines": {

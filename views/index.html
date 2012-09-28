@@ -31,10 +31,17 @@
 </head>
 <body>
     <div id="dashboard">Drag files here.</div>
+    <h2>Files</h2>
     <div id="files-list"></div>
+    <h2>Users</h2>
+    <div id="users-list"></div>
 
     <script id="template-file" type="text/handlebars">
         <li><a href="{{data}}" download="{{name}}">{{name}} ({{author}} at {{timestamp}})</a></li>
+    </script>
+
+    <script id="template-user" type="text/handlebars">
+        <li>{{name}}</li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -46,6 +53,37 @@
     <script>
 
         var socket = io.connect('http://'+document.domain+':8080');
+
+        var UserModel = Backbone.Model.extend({
+          defaults: {
+            'name': 'New User',
+            'self': 'true'
+          },
+          initialize: function () {
+            this.on('add', function (user) {
+                appController.trigger('newUserAdded', user);
+            });
+          }
+        });
+
+        var UsersCollection = Backbone.Collection.extend({
+          model: UserModel
+        });
+
+        var UsersListView = Backbone.View.extend({
+            el: '#users-list',
+            template: (function () { return $('#template-user').html() }()),
+            initialize: function () {
+                this.on('add', this.add);
+            },
+            render: function (user) {
+                return Mustache.render(this.template, user);
+            },
+            add: function (user) {
+                var html = this.render(user);
+                this.$el.append(html);
+            }
+        });
 
         var AppModel = Backbone.Model.extend({
             initialize: function () {
@@ -88,12 +126,10 @@
                 this.on('add', this.add);
             },
             render: function (file) {
-                console.log(this.template, file);
                 return Mustache.render(this.template, file);
             },
             add: function (file) {
                 var html = this.render(file);
-                console.log(html);
                 this.$el.append(html);
             }
         });
@@ -102,15 +138,14 @@
             el: 'body',
             events: {
                 'dragover': function () {
-                    //this.trigger('stateChange', 'dragover');
-                    console.log('dragover');
+                    this.$el.addClass('dragover');
                 },
                 'dragleave': function () {
-                    //this.trigger('stateChange', 'dragleave');
-                    console.log('dragleave');
+                    this.$el.removeClass('dragover');
                 },
                 'drop': function (e) {
                     e.preventDefault();
+                    this.$el.removeClass('dragover');
                     appController.trigger('newFileDropped', e.originalEvent.dataTransfer.files[0]);
                 }
             }
@@ -122,6 +157,8 @@
                 var dashboardView = new DashboardView();
                 var filesCollection = new FilesCollection();
                 var filesListView = new FilesListView();
+                var usersCollection = new UsersCollection();
+                var usersListView = new UsersListView();
 
                 this.on('newFileDropped', function (file) {
                     var reader = new FileReader();
@@ -136,14 +173,44 @@
                 this.on('newFileAdded', function (file) {
                     filesListView.trigger('add', file.toJSON() );
                 });
+                this.on('newUserFromServer', function (user) {
+                    usersCollection.add(user);
+                    console.log(user);
+                });
+                this.on('newUserAdded', function (user) {
+                    usersListView.trigger('add', user.toJSON() );
+                });
             }
         });
 
         appController = new AppController();
 
-        socket.on('_sendFile', function (data) {
-            console.log(data);
-            appController.trigger('newFileFromServer', data);
+        socket.on('_newFile', function (file) {
+            appController.trigger('newFileFromServer', file);
+        });
+
+        socket.on( '_getAllFiles', function (files) {
+            _.each(files, function (file) {
+                appController.trigger('newFileFromServer', file);
+            });
+        });
+
+        socket.on( '_modifyCurrentUser', function (user) {
+            user.self = 'true';
+            console.log('self modified', user);
+            appController.trigger('newUser', user);
+        });
+
+        socket.on( '_newUser', function (user) {
+            console.log('new user');
+            appController.trigger('newUserFromServer', user);
+        });
+
+        socket.on( '_getAllUsers', function (users) {
+            console.log('all users');
+            _.each(users, function (user) {
+                appController.trigger('newUserFromServer', user);
+            });
         });
 
 
