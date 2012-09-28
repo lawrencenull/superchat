@@ -88,7 +88,6 @@
             },
             remove: function (user) {
                 var $el = this.$el.find('#user'+user.id);
-                console.log('removing');
                 $el.remove();
             }
         });
@@ -171,7 +170,7 @@
                 this.on('newFileDropped', function (file) {
                     var reader = new FileReader();
                     reader.onload = function () {
-                        socket.emit('newFile', { name: file.name, timestamp: new Date().getTime(), data: this.result });
+                        socket.emit('fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result });
                     };
                     reader.readAsDataURL(file);
                 });

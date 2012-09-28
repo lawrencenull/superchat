@@ -11,6 +11,13 @@ var express = require('express')
   , socket_io = require('socket.io').listen(8080)
   , Backbone = require('backbone')
   , fs = require('fs');
+  //, mongodb = require('mongodb');
+
+/**
+ * Database setup
+*/
+
+//var db = mongodb.createConnection('localhost', 'io-whiteboard');
 
 /**
  * Express setup
@@ -46,7 +53,10 @@ http.createServer(app).listen(app.get('port'), function(){
   Backbone setup
   */
 
+// Make Backbone DOM-independent
 Backbone.View.prototype._ensureElement = function () {};
+
+// Users
 
 var UserModel = Backbone.Model.extend({
   defaults: {
@@ -56,12 +66,6 @@ var UserModel = Backbone.Model.extend({
     if (this.get('name') === this.defaults.name) {
       this.set('name', 'anon_' + this.id);
     }
-    this.on('add', function (user) {
-      appController.trigger('newUserAdded', user);
-    });
-    this.on('remove', function (user) {
-      appController.trigger('userRemoved', user);
-    });
   }
 });
 
@@ -69,7 +73,31 @@ var UsersCollection = Backbone.Collection.extend({
   model: UserModel
 });
 
-// identical model on client
+var UsersController = Backbone.View.extend({
+    initialize: function () {
+        var t = this;
+        var usersCollection = this.usersCollection = new UsersCollection();
+        usersCollection.on('add', function (user) {
+            appController.trigger('notify', 'userAdded', user);
+        });
+        usersCollection.on('remove', function (user) {
+            appController.trigger('notify', 'userRemoved', user);
+        });
+        this.on('userSessionEnded', function (user) {
+          var userID = user.id;
+          var user = usersCollection.where({id:user.id})[0];
+          usersCollection.remove(user);
+        });
+    },
+    add: function (user) {
+        this.usersCollection.add(user);
+    },
+    render: function () {
+        return this.usersCollection.toJSON();
+    }
+});
+
+// Files
 
 var FileModel = Backbone.Model.extend({
     defaults: {
@@ -95,28 +123,28 @@ var FilesCollection = Backbone.Collection.extend({
 var FilesController = Backbone.View.extend({
     initialize: function () {
         var t = this;
-        this.filesCollection = new FilesCollection();
-        this.filesCollection.on('add', function (file) {
-            var data = file.get('data');
-            var name = file.get('name');
-            file.unset('data');
-            t.writeToDisk({name:name, data:data});
+        var filesCollection = this.filesCollection = new FilesCollection();
+        filesCollection.on('add', function (file) {            
+            t.writeToDisk(file);
+            appController.trigger('notify', 'newFile', file.toJSON() );
         });
     },
     add: function (file) {
         var data = file.data;
         this.filesCollection.add(file);
     },
-    getAllFiles: function () {
+    render: function () {
         return this.filesCollection.toJSON();
     },
     writeToDisk: function (file) {
-        var data = this.convertFileToBinary(file.data);
-        fs.writeFile('./public/files/'+file.name, data, function (error) {
+        var t = this;
+        var data = this.convertFileToBinary(file.get('data'));
+        fs.writeFile('./public/files/'+file.get('name'), data, function (error) {
             if (error) {
                 console.log(error);
             } else {
-                console.log('File was saved: ./public/files/'+file.name);
+                console.log('File was saved: ./public/files/'+file.get('name') + ' -- Clearing from Memory');
+                file.unset('data');
             }
         });
     },
@@ -128,44 +156,27 @@ var FilesController = Backbone.View.extend({
     }
 
 });
-/*
-fs.writeFile("./files/test.txt", "Hey there!", function(err) {
-    if(err) {
-        console.log(err);
-    } else {
-        console.log("The file was saved!");
-    }
-});*/
+
+// App
 
 var AppController = Backbone.Model.extend({
   initialize: function () {
     //var filesCollection = new FilesCollection();
     var filesController = new FilesController();
-    var usersCollection = new UsersCollection();
-    this.on('newUserSession', function (user) {
-      usersCollection.add({id: user.id });
-      // user.emit( '_getAllFiles', filesCollection.toJSON() );
-      user.emit( '_getAllFiles', filesController.getAllFiles() );
-      user.emit( '_getAllUsers', usersCollection.toJSON() );
+    var usersController = new UsersController();
+    this.on('notify', function (message, data) {
+        socket_io.sockets.emit( '_'+message, data );
     });
-    this.on('userSessionEnded', function (user) {
-      var userID = user.id;
-      var user = usersCollection.where({id:user.id})[0];
-      usersCollection.remove(user);
-    });
-    this.on('newFileFromClient', function (file) {
+    this.on('_fileAdded', function (file) {
       filesController.add(file);
     });
-    this.on('newFileAdded', function (file) {
-      socket_io.sockets.emit( '_newFile', file.toJSON() );
+    this.on('_userSessionStarted', function (socket) {
+        usersController.add({id:socket.id}); // when to trigger and when to call directly?
+        socket.emit( '_getAllUsers', usersController.render() );
+        socket.emit( '_getAllFiles', filesController.render() );
     });
-    this.on('newUserAdded', function (user) {
-      var socketid = user.id;
-      socket_io.sockets.socket(socketid).emit( '_currentUserModified', user);
-      socket_io.sockets.except(socketid).emit( '_userAdded', user);
-    });
-    this.on('userRemoved', function (user) {
-        socket_io.sockets.emit( '_userRemoved', user);
+    this.on('_userSessionEnded', function (socket) {
+        usersController.trigger('userSessionEnded', socket);
     });
   }
 });
@@ -178,11 +189,11 @@ var appController = new AppController();
   */
 
 socket_io.sockets.on('connection', function (socket) {
-  appController.trigger('newUserSession', socket);
+  appController.trigger('_userSessionStarted', socket);
   socket.on('disconnect', function () {
-    appController.trigger('userSessionEnded', socket);
+    appController.trigger('_userSessionEnded', socket);
   });
-  socket.on('newFile', function (data) {
-    appController.trigger('newFileFromClient', data);
+  socket.on('fileAdded', function (data) {
+    appController.trigger('_fileAdded', data);
   });
 });
