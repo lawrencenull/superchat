@@ -25,19 +25,19 @@ exports.init = function(d) {
           var t = this;
           var usersCollection = this.usersCollection = new UsersCollection();
           usersCollection.on('add', function (user) {
-              this.trigger('_userAdded', user);
+              t.trigger('_userAdded', user);
           });
           usersCollection.on('remove', function (user) {
-            this.trigger('_userRemoved', user);
+            t.trigger('_userRemoved', user);
           });
-          this.on('userSessionEnded', function (user) {
+          this.on('userAdded', function (user) {
+              usersCollection.add(user);
+          });
+          this.on('userRemoved', function (user) {
             var userID = user.id;
             var user = usersCollection.where({id:user.id})[0];
             usersCollection.remove(user);
           });
-      },
-      add: function (user) {
-          this.usersCollection.add(user);
       },
       render: function () {
           return this.usersCollection.toJSON();
