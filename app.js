@@ -59,6 +59,9 @@ var UserModel = Backbone.Model.extend({
     this.on('add', function (user) {
       appController.trigger('newUserAdded', user);
     });
+    this.on('remove', function (user) {
+      appController.trigger('userRemoved', user);
+    });
   }
 });
 
@@ -139,11 +142,16 @@ var AppController = Backbone.Model.extend({
     //var filesCollection = new FilesCollection();
     var filesController = new FilesController();
     var usersCollection = new UsersCollection();
-    this.on('newUser', function (user) {
+    this.on('newUserSession', function (user) {
       usersCollection.add({id: user.id });
       // user.emit( '_getAllFiles', filesCollection.toJSON() );
       user.emit( '_getAllFiles', filesController.getAllFiles() );
       user.emit( '_getAllUsers', usersCollection.toJSON() );
+    });
+    this.on('userSessionEnded', function (user) {
+      var userID = user.id;
+      var user = usersCollection.where({id:user.id})[0];
+      usersCollection.remove(user);
     });
     this.on('newFileFromClient', function (file) {
       filesController.add(file);
@@ -153,8 +161,11 @@ var AppController = Backbone.Model.extend({
     });
     this.on('newUserAdded', function (user) {
       var socketid = user.id;
-      socket_io.sockets.socket(socketid).emit( '_modifyCurrentUser', user);
-      socket_io.sockets.except(socketid).emit( '_newUser', user);
+      socket_io.sockets.socket(socketid).emit( '_currentUserModified', user);
+      socket_io.sockets.except(socketid).emit( '_userAdded', user);
+    });
+    this.on('userRemoved', function (user) {
+        socket_io.sockets.emit( '_userRemoved', user);
     });
   }
 });
@@ -167,7 +178,10 @@ var appController = new AppController();
   */
 
 socket_io.sockets.on('connection', function (socket) {
-  appController.trigger('newUser', socket);
+  appController.trigger('newUserSession', socket);
+  socket.on('disconnect', function () {
+    appController.trigger('userSessionEnded', socket);
+  });
   socket.on('newFile', function (data) {
     appController.trigger('newFileFromClient', data);
   });
