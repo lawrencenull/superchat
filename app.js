@@ -9,8 +9,11 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , socket_io = require('socket.io').listen(8080)
+  , _ = require('underscore')
   , Backbone = require('backbone')
-  , fs = require('fs');
+  , fs = require('fs')
+  , appFiles = require('./server/files')
+  , appUsers = require('./server/users');
   //, mongodb = require('mongodb');
 
 /**
@@ -54,121 +57,45 @@ http.createServer(app).listen(app.get('port'), function(){
   */
 
 // Make Backbone DOM-independent
+
 Backbone.View.prototype._ensureElement = function () {};
 
-// Users
+// import Files
+appFiles.init({ _:_, Backbone:Backbone, fs:fs });
 
-var UserModel = Backbone.Model.extend({
-  defaults: {
-    'name': 'New User'
-  },
-  initialize: function () {
-    if (this.get('name') === this.defaults.name) {
-      this.set('name', 'anon_' + this.id);
-    }
-  }
-});
-
-var UsersCollection = Backbone.Collection.extend({
-  model: UserModel
-});
-
-var UsersController = Backbone.View.extend({
-    initialize: function () {
-        var t = this;
-        var usersCollection = this.usersCollection = new UsersCollection();
-        usersCollection.on('add', function (user) {
-            appController.trigger('notify', 'userAdded', user);
-        });
-        usersCollection.on('remove', function (user) {
-            appController.trigger('notify', 'userRemoved', user);
-        });
-        this.on('userSessionEnded', function (user) {
-          var userID = user.id;
-          var user = usersCollection.where({id:user.id})[0];
-          usersCollection.remove(user);
-        });
-    },
-    add: function (user) {
-        this.usersCollection.add(user);
-    },
-    render: function () {
-        return this.usersCollection.toJSON();
-    }
-});
-
-// Files
-
-var FileModel = Backbone.Model.extend({
-    defaults: {
-        'name': 'file.txt',
-        'author': 'New Author',
-        'timestamp': 'New Date',
-        'location': {
-            'offsetX': 0,
-            'offsetY': 0
-        }
-    }
-});
-
-var FilesCollection = Backbone.Collection.extend({
-    model: FileModel,
-    initialize: function () {
-        this.on('add', function (file) {
-            appController.trigger('newFileAdded', file);
-        });
-    }
-});
-
-var FilesController = Backbone.View.extend({
-    initialize: function () {
-        var t = this;
-        var filesCollection = this.filesCollection = new FilesCollection();
-        filesCollection.on('add', function (file) {            
-            t.writeToDisk(file);
-            appController.trigger('notify', 'newFile', file.toJSON() );
-        });
-    },
-    add: function (file) {
-        var data = file.data;
-        this.filesCollection.add(file);
-    },
-    render: function () {
-        return this.filesCollection.toJSON();
-    },
-    writeToDisk: function (file) {
-        var t = this;
-        var data = this.convertFileToBinary(file.get('data'));
-        fs.writeFile('./public/files/'+file.get('name'), data, function (error) {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('File was saved: ./public/files/'+file.get('name') + ' -- Clearing from Memory');
-                file.unset('data');
-            }
-        });
-    },
-    convertFileToBinary: function (data) {
-        var index = 'base64,';
-        var trim = data.indexOf(index) + index.length;
-        var base64 = data.substring(trim);
-        return binary = new Buffer(base64, 'base64');
-    }
-
-});
+// import Users
+appUsers.init({ _:_, Backbone:Backbone });
 
 // App
-
 var AppController = Backbone.Model.extend({
   initialize: function () {
-    //var filesCollection = new FilesCollection();
+    var t = this;
     var filesController = new FilesController();
     var usersController = new UsersController();
-    this.on('notify', function (message, data) {
-        socket_io.sockets.emit( '_'+message, data );
+
+    // file listeners
+    filesController.on('_newFile', function (file) {
+        t.notify('newFile', file.toJSON() );
     });
+    filesController.on('_error', function (params) {
+        if (params.user) {
+            t.message( params.user, 'error', params.error );
+        } else {
+            t.notify( 'error', params.error );
+        }
+    });
+
+    // user listeners
+    usersController.on('_userAdded', function (user) {
+        this.notify('userAdded', user);
+    });
+    usersController.on('_userRemoved', function (user) {
+        this.notify('userRemoved', user);
+    });
+
+    // socket notifications
     this.on('_fileAdded', function (file) {
-      filesController.add(file);
+        filesController.trigger('fileAdded', file);
     });
     this.on('_userSessionStarted', function (socket) {
         usersController.add({id:socket.id}); // when to trigger and when to call directly?
@@ -178,10 +105,19 @@ var AppController = Backbone.Model.extend({
     this.on('_userSessionEnded', function (socket) {
         usersController.trigger('userSessionEnded', socket);
     });
+
+  },
+  notify: function (message, data) {
+    socket_io.sockets.emit( '_'+message, data );
+  },
+  message: function (user, message, data) {
+    socket_io.sockets.socket(user).emit( '_'+message, data);
   }
 });
 
-var appController = new AppController();
+appController = new AppController();
+
+
 
 
 /**

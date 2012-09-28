@@ -37,7 +37,7 @@
     <div id="users-list"></div>
 
     <script id="template-file" type="text/handlebars">
-        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{author}} at {{timestamp}})</a></li>
+        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{authorID}} at {{timestamp}})</a></li>
     </script>
 
     <script id="template-user" type="text/handlebars">
@@ -141,6 +141,13 @@
             }
         });
 
+        var FilesController = Backbone.View.extend({
+            initialize: function () {
+                var filesCollection = this.filesCollection = new FilesCollection();
+                var filesListView = this.filesListView = new FilesListView();
+            }
+        });
+
         var DashboardView = Backbone.View.extend({
             el: 'body',
             events: {
@@ -168,9 +175,10 @@
                 var usersListView = new UsersListView();
 
                 this.on('newFileDropped', function (file) {
+                    var self = usersCollection.where({'self':'true'})[0];
                     var reader = new FileReader();
                     reader.onload = function () {
-                        socket.emit('fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result });
+                        socket.emit('fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result, authorID: self.id });
                     };
                     reader.readAsDataURL(file);
                 });
@@ -192,6 +200,10 @@
                 });
                 this.on('userRemoved', function (user) {
                     usersListView.remove(user);
+                });
+
+                this.on('debug', function () {
+                    console.log(filesCollection);
                 });
             }
         });
@@ -229,6 +241,10 @@
         socket.on( '_userRemoved', function (user) {
             console.log('removed');
             appController.trigger('userRemovedFromServer', user);
+        });
+
+        socket.on( '_error', function (error) {
+            alert(error);
         });
 
 
