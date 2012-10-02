@@ -247,6 +247,10 @@
             alert(error);
         });
 
+        socket.on('_chatMessageAdded', function (message) {
+            console.log('NEW MESSAGE!', message);
+        });
+
 
     </script>
 </body>

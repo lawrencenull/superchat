@@ -13,7 +13,8 @@ var express = require('express'),
     Backbone = require('backbone'),
     fs = require('fs'),
     appFiles = require('./server/files'),
-    appUsers = require('./server/users');
+    appUsers = require('./server/users'),
+    appChat = require('./server/chat');
 //, mongodb = require('mongodb');
 
 
@@ -80,12 +81,19 @@ appUsers.init({
     Backbone: Backbone
 });
 
+// import Chat
+appChat.init({
+    _: _,
+    Backbone: Backbone
+});
+
 // App
 var AppController = Backbone.Model.extend({
     initialize: function () {
         var t = this;
         var filesController = new FilesController();
         var usersController = new UsersController();
+        var chatController = new ChatController();
 
         // file listeners
         filesController.on('_newFile', function (file) {
@@ -122,6 +130,15 @@ var AppController = Backbone.Model.extend({
             usersController.trigger('userRemoved', user);
         });
 
+        // chat listeners
+        this.on('_chatMessageAdded', function (message) {
+            chatController.trigger('messageAdded');
+        });
+
+        chatController.on('_chatMessageAdded', function (message) {
+            t.notify('chatMessageAdded', message);
+        });
+
     },
     notify: function (message, data) {
         socket_io.sockets.emit('_' + message, data);
@@ -141,11 +158,14 @@ appController = new AppController();
 
 socket_io.sockets.on('connection', function (socket) {
     appController.trigger('_userSessionStarted', socket);
-    console.log(socket);
+
     socket.on('disconnect', function () {
         appController.trigger('_userSessionEnded', socket);
     });
     socket.on('fileAdded', function (data) {
         appController.trigger('_fileAdded', data);
+    });
+    socket.on('chatMessageAdded', function (data) {
+        appController.trigger('_chatMessageAdded', data);
     });
 });
