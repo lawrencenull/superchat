@@ -6,7 +6,7 @@
 
     <style type="text/css" media="screen">
         * {
-            box-sizing: border;
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
@@ -17,7 +17,7 @@
             margin: 50px auto 0;
             padding: 20px;
             text-align: center;
-            width: 100%;
+            width: 600px;
         }
         #dropzone {
             border:4px dashed red;
@@ -25,6 +25,41 @@
 
         .dragover {
           background-color: orange;  
+        }
+
+        #chat-messages-list {
+            border: 1px solid #999;
+            height: 400px;
+            overflow: scroll;
+            margin: 1em 0;
+            list-style-type: none;
+            text-align: left;
+            width: 100%;
+        }
+        #chat-messages-list > li {
+            background-color: #deffe0;
+            padding: 5px;
+        }
+        #chat-messages-list > li:nth-child(odd) {
+            background-color: #a9ffad;
+        }
+        #chat-messages-list > li.self {
+            background-color: yellow;
+        }
+        #chat-messages-list > li:nth-child(odd).self {
+            background-color: #faffd3;
+        }
+        #chat-messages-list > li > .user {
+            font-weight: bold;
+        }
+        #chat-messages-list > li > .user:after {
+            content: ':';
+        }
+        #chat input {
+            border: 1px solid #999;
+            padding: 1em;
+            font-size: 1em;
+            width: 100%;
         }
     </style>
 
@@ -36,12 +71,22 @@
     <h2>Users</h2>
     <div id="users-list"></div>
 
+    <form id="chat">
+        <h2>Chat</h2>
+        <ul id="chat-messages-list"></ul>
+        <input type="text" placeholder="Message Here...">
+    </form>
+
     <script id="template-file" type="text/handlebars">
         <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{authorID}} at {{timestamp}})</a></li>
     </script>
 
     <script id="template-user" type="text/handlebars">
         <li id="user{{id}}">{{name}}</li>
+    </script>
+
+    <script id="template-chat-message" type="text/handlebars">
+        <li id="message{{id}}" class="{{^user}}self{{/user}}"><span class="user">{{#user}}{{user}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -65,7 +110,7 @@
             });
             this.on('remove', function (user) {
                 appController.trigger('userRemoved', user);
-            })
+            });
           }
         });
 
@@ -128,7 +173,7 @@
         var FilesListView = Backbone.View.extend({
             el: '#files-list',
             //template: (function () { return Handlebars.compile( $('#template-file').html() ) }()),
-            template: (function () { return $('#template-file').html() }()),
+            template: $('#template-file').html(),
             initialize: function () {
                 this.on('add', this.add);
             },
@@ -145,6 +190,54 @@
             initialize: function () {
                 var filesCollection = this.filesCollection = new FilesCollection();
                 var filesListView = this.filesListView = new FilesListView();
+            }
+        });
+
+        var ChatModel = Backbone.Model.extend();
+        var ChatCollection = Backbone.Collection.extend({
+            model: ChatModel
+        });
+        var ChatMessagesListView = Backbone.View.extend({
+            el: '#chat',
+            initialize: function () {
+                this.$el.$input = this.$el.find('input');
+                this.$el.$messagesList = $('#chat-messages-list');
+            },
+            events: {
+                'submit': function (e) {
+                    e.preventDefault();
+                    var val = this.$el.$input.val();
+                    if (val.length > 0) {
+                        this.$el.$input.val('');
+                        this.trigger('_chatMessageAdded', val);
+                    }
+                }
+            },
+            template: $('#template-chat-message').html(),
+            render: function (file) {
+                return Mustache.render(this.template, file);
+            },
+            add: function (file) {
+                var html = this.render(file);
+                this.$el.$messagesList.append(html).scrollTop(99999);
+            }
+
+        });
+        var ChatController = Backbone.View.extend({
+            initialize: function () {
+                var t = this;
+                var chatCollection = this.chatCollection = new ChatCollection();
+                var chatMessagesListView = this.chatMessagesListView = new ChatMessagesListView();
+                chatMessagesListView.on('_chatMessageAdded', function (message) {
+                    t.chatCollection.add({message:message});
+                });
+                chatCollection.on('add', function (message) {
+                    t.chatMessagesListView.add( message.toJSON() );
+                    t.trigger('_chatMessageAdded', message.toJSON() );
+                });
+                this.on('messageAdded', function (message) {
+                    chatCollection.add(message);
+                });
             }
         });
 
@@ -174,6 +267,8 @@
                 var usersCollection = new UsersCollection();
                 var usersListView = new UsersListView();
 
+                var chatController = new ChatController();
+
                 this.on('newFileDropped', function (file) {
                     var self = usersCollection.where({'self':'true'})[0];
                     var reader = new FileReader();
@@ -202,9 +297,29 @@
                     usersListView.remove(user);
                 });
 
+
+                chatController.on('_chatMessageAdded', function (message) {
+                    if (!message.user) {
+                        message.user = socket.socket.sessionid;
+                        socket.emit('chatMessageAdded', message);
+                    }
+                });
+
                 this.on('debug', function () {
                     console.log(filesCollection);
                 });
+
+                this.on('newMessageFromServer', function (message) {
+
+                    if (message.user !== socket.socket.sessionid) {
+                        console.log('there was a new message from the server! we will accept it.');
+                        chatController.trigger('messageAdded', message);
+                    } else {
+                        console.log('there was a new message from the server but we will ignore it');
+                    }
+                });
+
+
             }
         });
 
@@ -248,7 +363,7 @@
         });
 
         socket.on('_chatMessageAdded', function (message) {
-            console.log('NEW MESSAGE!', message);
+            appController.trigger('newMessageFromServer', message);
         });
 
 
