@@ -168,4 +168,7 @@ socket_io.sockets.on('connection', function (socket) {
     socket.on('chatMessageAdded', function (data) {
         appController.trigger('_chatMessageAdded', data);
     });
+    socket.on('reloadRequest', function (data) {
+        appController.notify('reload');
+    });
 });
