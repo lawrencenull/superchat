@@ -114,6 +114,9 @@ var AppController = Backbone.Model.extend({
         usersController.on('_userRemoved', function (user) {
             t.notify('userRemoved', user);
         });
+        usersController.on('_userImageUpdated', function (user) {
+            t.notify('userImageUpdated', user);
+        });
 
         // socket notifications
         this.on('_fileAdded', function (file) {
@@ -131,6 +134,10 @@ var AppController = Backbone.Model.extend({
             usersController.trigger('userRemoved', user);
         });
 
+        this.on('_userImageUpdated', function (user, image) {
+            usersController.trigger('userImageUpdated', user.id, image);
+        });
+
         // chat listeners
         this.on('_chatMessageAdded', function (message) {
             chatController.trigger('messageAdded', message);
@@ -139,6 +146,8 @@ var AppController = Backbone.Model.extend({
         chatController.on('_chatMessageAdded', function (message) {
             t.notify('chatMessageAdded', message);
         });
+
+        this.notify('reload');
 
     },
     notify: function (message, data) {
@@ -171,5 +180,8 @@ socket_io.sockets.on('connection', function (socket) {
     });
     socket.on('reloadRequest', function (data) {
         appController.notify('reload');
+    });
+    socket.on('userImageUpdated', function (data) {
+        appController.trigger('_userImageUpdated', socket, data);
     });
 });

@@ -27,6 +27,20 @@
           background-color: orange;  
         }
 
+        #users-list {
+            list-style: none;
+        }
+        #users-list li {
+            text-align: left;
+            height: 100px;
+            padding: 10px;
+        }
+        #users-list img {
+            float: left;
+            height: 100%;
+            margin-right: 10px;
+        }
+
         #chat-messages-list {
             border: 1px solid #999;
             height: 400px;
@@ -61,10 +75,21 @@
             font-size: 1em;
             width: 100%;
         }
+        #webcam,
+        #webcam-feed {
+            height: 300px;
+            width: 100%;
+        }
+        #snapshot {
+            display: block;
+        }
     </style>
 
 </head>
 <body>
+    <video autoplay="true" id="webcam"></video>
+    <canvas id="webcam-feed"></canvas>
+
     <div id="dashboard">Drag files here.</div>
     <h2>Files</h2>
     <div id="files-list"></div>
@@ -82,7 +107,7 @@
     </script>
 
     <script id="template-user" type="text/handlebars">
-        <li id="user{{id}}">{{name}}</li>
+        <li id="user{{id}}">{{#image}}<img src="{{image.data}}">{{/image}}{{name}}</li>
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
@@ -134,6 +159,12 @@
             remove: function (user) {
                 var $el = this.$el.find('#user'+user.id);
                 $el.remove();
+            },
+            update: function (user) {
+                console.log(user);
+                var $el = this.$el.find('#user'+user.id);
+                var html = this.render(user);
+                $el.html( html );
             }
         });
 
@@ -297,6 +328,15 @@
                 this.on('userRemoved', function (user) {
                     usersListView.remove(user);
                 });
+                this.on('userImageUpdated', function (user) {
+                    var userModel = usersCollection.where({id:user.id});
+                    if (userModel.length > 0) {
+                        userModel[0].set('image', user.image);
+                    }
+                });
+                usersCollection.on('change', function (user) {
+                    usersListView.update( user.toJSON() );
+                });
 
 
                 chatController.on('_chatMessageAdded', function (message) {
@@ -385,11 +425,16 @@
         });
 
         socket.on('_chatMessageAdded', function (message) {
+            if (message.user)
             appController.trigger('newMessageFromServer', message);
         });
 
         socket.on('_reload', function () {
             window.location = window.location;
+        });
+
+        socket.on('_userImageUpdated', function (data) {
+            appController.trigger('userImageUpdated', data);
         });
 
     
@@ -401,6 +446,30 @@
 
         
             $('body').on('click', test);
+
+
+            navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
+                var video = $('#webcam')[0];
+                video.src = window.webkitURL.createObjectURL(stream);
+                console.log('success');
+                });
+
+            var $feed = $('#webcam-feed');
+            var feed = $feed[0].getContext('2d');
+            var $video = $('#webcam');
+            var video = $video[0];
+
+            var snapshot = function () {
+                $feed.width( video.videoWidth );
+                $feed.height( video.videoHeight );
+                $feed[0].setAttribute('width', video.videoWidth );
+                $feed[0].setAttribute('height', video.videoHeight);
+                feed.drawImage(video, 0, 0);
+                var data = $feed[0].toDataURL();
+                socket.emit('userImageUpdated', { data: data });
+            };
+
+            $('#webcam').on('click', snapshot);
 
 
     </script>

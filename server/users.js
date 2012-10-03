@@ -30,6 +30,9 @@ exports.init = function(d) {
           usersCollection.on('remove', function (user) {
             t.trigger('_userRemoved', user);
           });
+          usersCollection.on('change', function (user) {
+            t.trigger('_userImageUpdated', user.toJSON() );
+          });
           this.on('userAdded', function (user) {
               usersCollection.add(user);
           });
@@ -37,6 +40,12 @@ exports.init = function(d) {
             var userID = user.id;
             var user = usersCollection.where({id:user.id})[0];
             usersCollection.remove(user);
+          });
+          this.on('userImageUpdated', function (user, image) {
+            var userModel = usersCollection.where({id:user});
+            if (userModel.length > 0) {
+              userModel[0].set('image', image);
+            }
           });
       },
       render: function () {
