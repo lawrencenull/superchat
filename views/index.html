@@ -367,6 +367,14 @@
             });
         });
 
+        socket.on( '_getAllMessages', function (messages) {
+
+            console.log('all messages', messages);
+            _.each(messages, function (message) {
+                appController.trigger('newMessageFromServer', message);
+            });
+        });
+
         socket.on( '_userRemoved', function (user) {
             console.log('removed');
             appController.trigger('userRemovedFromServer', user);

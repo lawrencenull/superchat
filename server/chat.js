@@ -32,7 +32,10 @@ exports.init = function(d) {
     			t.trigger('_chatMessageAdded', message.toJSON() );
     		});
 
-    	}
+    	},
+        render: function () {
+            return this.messagesCollection.toJSON();
+        }
     });
 
 };

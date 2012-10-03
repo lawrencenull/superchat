@@ -122,6 +122,7 @@ var AppController = Backbone.Model.extend({
         this.on('_userSessionStarted', function (user) {
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
+            t.message(user.id, 'getAllMessages', chatController.render());
             usersController.trigger('userAdded', {
                 id: user.id
             });
