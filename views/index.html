@@ -124,18 +124,25 @@
 
         var socket = io.connect('http://'+document.domain+':8080');
 
+        Backbone.Model.prototype.update = function(model){  
+            var t = this;
+            // update or add all new values
+            _.each(model, function (value, attribute) {
+                t.set(attribute, value);
+            });
+            // if new value is missing, delete old value
+            _.each(this.attributes, function (value, attribute) {
+                if (!model[attribute]) {
+                    t.unset(attribute);
+                }
+            });          
+        };
+
         var UserModel = Backbone.Model.extend({
           defaults: {
-            'name': 'New User',
-            'self': 'true'
+            'name': 'New User'
           },
           initialize: function () {
-            this.on('add', function (user) {
-                appController.trigger('newUserAdded', user);
-            });
-            this.on('remove', function (user) {
-                appController.trigger('userRemoved', user);
-            });
           }
         });
 
@@ -146,9 +153,6 @@
         var UsersListView = Backbone.View.extend({
             el: '#users-list',
             template: (function () { return $('#template-user').html() }()),
-            initialize: function () {
-                this.on('add', this.add);
-            },
             render: function (user) {
                 return Mustache.render(this.template, user);
             },
@@ -168,14 +172,39 @@
             }
         });
 
+        var UsersController = Backbone.View.extend({
+            initialize: function () {
+                var usersCollection = this.usersCollection = new UsersCollection();
+                var usersListView = this.usersListView = new UsersListView();
+
+                usersCollection.on('add', function (user) {
+                    usersListView.add(user.toJSON());
+                });
+
+                usersCollection.on('remove', function (user) {
+                    usersListView.remove(user.toJSON());
+                });
+
+                usersCollection.on('change', function (user) {
+                    usersListView.update(user.toJSON());
+                });
+            },
+            add: function (user) {
+                this.usersCollection.add(user);
+            },
+            remove: function (user) {
+                this.usersCollection.remove(user);
+            },
+            update: function (user) {
+                userModel = this.usersCollection.where({id:user.id})[0];
+                if (userModel) {
+                    userModel.update(user);
+                }
+            }
+        });
+
         var AppModel = Backbone.Model.extend({
             initialize: function () {
-                this.on('change', function () {
-                    appController.trigger('change', {
-                        model: this,
-                        changes: arguments[1].changes
-                    });
-                });
             }
         });
 
@@ -314,8 +343,7 @@
                 var t = this;
                 var appModel = new AppModel();
                 var filesController = new FilesController();
-                var usersCollection = new UsersCollection();
-                var usersListView = new UsersListView();
+                var usersController = new UsersController();
 
                 var chatController = new ChatController();
 
@@ -329,26 +357,16 @@
                     filesController.add(file);
                 });
                 this.on('newUserFromServer', function (user) {
-                    usersCollection.add(user);
-                    console.log(user);
-                });
-                this.on('newUserAdded', function (user) {
-                    usersListView.trigger('add', user.toJSON() );
+                    usersController.add(user);
                 });
                 this.on('userRemovedFromServer', function (user) {
-                    usersCollection.remove(user);
+                    usersController.remove(user);
                 });
                 this.on('userRemoved', function (user) {
                     usersListView.remove(user);
                 });
-                this.on('userImageUpdated', function (user) {
-                    var userModel = usersCollection.where({id:user.id});
-                    if (userModel.length > 0) {
-                        userModel[0].set('image', user.image);
-                    }
-                });
-                usersCollection.on('change', function (user) {
-                    usersListView.update( user.toJSON() );
+                this.on('userUpdated', function (user) {
+                    usersController.update(user);
                 });
 
 
@@ -447,7 +465,7 @@
         });
 
         socket.on('_userImageUpdated', function (data) {
-            appController.trigger('userImageUpdated', data);
+            appController.trigger('userUpdated', data);
         });
 
     
