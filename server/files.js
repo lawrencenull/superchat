@@ -8,9 +8,8 @@ exports.init = function(d) {
 
     var FileModel = Backbone.Model.extend({
         defaults: {
-            'name': 'file.txt',
-            'author': 'New Author',
-            'authorID': 0,
+            'name': 'no-file.txt',
+            'user': 0,
             'isOnDisk': false,
             'timestamp': 'New Date',
             'location': {
@@ -54,7 +53,7 @@ exports.init = function(d) {
                     this.trigger( '_newFile', data.file );
                 } else {
                     console.log('Error writing file to disk: ' + data.file.get('name'));
-                    this.trigger( '_error', { user: data.file.get('authorID'), error: t.messages.uploadError(data.file) });
+                    this.trigger( '_error', { user: data.file.get('user'), error: t.messages.uploadError(data.file) });
                 }
             });
         },

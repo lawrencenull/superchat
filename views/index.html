@@ -103,7 +103,7 @@
     </form>
 
     <script id="template-file" type="text/handlebars">
-        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{authorID}} at {{timestamp}})</a></li>
+        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{user}} at {{timestamp}})</a></li>
     </script>
 
     <script id="template-user" type="text/handlebars">
@@ -181,9 +181,8 @@
 
         var FileModel = Backbone.Model.extend({
             defaults: {
-                'name': 'file.txt',
+                'name': 'no-file.txt',
                 'data': 'data:',
-                'author': 'New Author',
                 'timestamp': 'New Date',
                 'location': {
                     'offsetX': 0,
@@ -195,9 +194,6 @@
         var FilesCollection = Backbone.Collection.extend({
             model: FileModel,
             initialize: function () {
-                this.on('add', function (file) {
-                    appController.trigger('newFileAdded', file);
-                });
             }
         });
 
@@ -217,10 +213,50 @@
             }
         });
 
+        var FileDropView = Backbone.View.extend({
+            el: 'body',
+            events: {
+                'dragover': function () {
+                    this.$el.addClass('dragover');
+                },
+                'dragleave': function () {
+                    this.$el.removeClass('dragover');
+                },
+                'drop': function (e) {
+                    e.preventDefault();
+                    this.$el.removeClass('dragover');
+                    this.trigger('_fileAdded', e.originalEvent.dataTransfer.files[0]);
+                }
+            }
+        });
+
         var FilesController = Backbone.View.extend({
             initialize: function () {
+                var t = this;
                 var filesCollection = this.filesCollection = new FilesCollection();
                 var filesListView = this.filesListView = new FilesListView();
+                var fileDropView = this.fileDropView = new FileDropView();
+
+                this.on('add', function (file) {
+                    filesCollection.add(file);
+                });
+
+
+                filesCollection.on('add', function (file) {
+                    filesListView.trigger('add', file.toJSON() );
+                });
+
+
+                fileDropView.on('_fileAdded', function (file) {
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        t.trigger('_fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
+            add: function (file) {
+                this.filesCollection.add(file);
             }
         });
 
@@ -272,48 +308,25 @@
             }
         });
 
-        var DashboardView = Backbone.View.extend({
-            el: 'body',
-            events: {
-                'dragover': function () {
-                    this.$el.addClass('dragover');
-                },
-                'dragleave': function () {
-                    this.$el.removeClass('dragover');
-                },
-                'drop': function (e) {
-                    e.preventDefault();
-                    this.$el.removeClass('dragover');
-                    appController.trigger('newFileDropped', e.originalEvent.dataTransfer.files[0]);
-                }
-            }
-        });
 
         var AppController = Backbone.View.extend({
             initialize: function () {
                 var t = this;
                 var appModel = new AppModel();
-                var dashboardView = new DashboardView();
-                var filesCollection = new FilesCollection();
-                var filesListView = new FilesListView();
+                var filesController = new FilesController();
                 var usersCollection = new UsersCollection();
                 var usersListView = new UsersListView();
 
                 var chatController = new ChatController();
 
-                this.on('newFileDropped', function (file) {
-                    var self = usersCollection.where({'self':'true'})[0];
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        socket.emit('fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result, authorID: self.id });
-                    };
-                    reader.readAsDataURL(file);
+                filesController.on('_fileAdded', function (file) {
+                    file.user = socket.socket.sessionid;
+                    console.log(file);
+                    socket.emit('fileAdded', file);
                 });
+
                 this.on('newFileFromServer', function (file) {
-                    filesCollection.add(file);
-                });
-                this.on('newFileAdded', function (file) {
-                    filesListView.trigger('add', file.toJSON() );
+                    filesController.add(file);
                 });
                 this.on('newUserFromServer', function (user) {
                     usersCollection.add(user);
