@@ -130,6 +130,8 @@ var AppController = Backbone.Model.extend({
             t.notify('userRemoved', user);
         });
         usersController.on('_userUpdated', function (user) {
+
+            console.log('updated', user );
             t.notify('userUpdated', user);
         });
 
@@ -198,7 +200,6 @@ socket_io.sockets.on('connection', function (socket) {
         appController.notify('reload');
     });
     socket.on('userUpdated', function (data) {
-        console.log(socket.id);
         appController.trigger('_userUpdated', data);
     });
 });

@@ -130,11 +130,11 @@
     </script>
 
     <script id="template-user" type="text/handlebars">
-        <li id="user{{id}}" class="{{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span></li>
+        <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span></li>
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message{{id}}" class="{{#self}}self{{/self}}"><span class="user">{{#user}}{{user}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
+        <li id="message-{{id}}" data-id="{{id}}" class="{{#self}}self{{/self}}"><span class="user">{{#user}}{{user.name}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -147,18 +147,20 @@
 
         var socket = io.connect('http://'+document.domain+':8080');
 
-        Backbone.Model.prototype.update = function(model){  
+        Backbone.Model.prototype.update = function(model, params){  
             var t = this;
             // update or add all new values
             _.each(model, function (value, attribute) {
                 t.set(attribute, value);
             });
-            // if new value is missing, delete old value
-            _.each(this.attributes, function (value, attribute) {
-                if (!model[attribute]) {
-                    t.unset(attribute);
-                }
-            });          
+            if (!params || (params && !params.soft) ) {
+                // if new value is missing, delete old value
+                _.each(this.attributes, function (value, attribute) {
+                    if (!model[attribute]) {
+                        t.unset(attribute);
+                    }
+                }); 
+            }         
         };
 
         var UserModel = Backbone.Model.extend({
@@ -181,6 +183,13 @@
             events: {
                 'click .self img': function (e) {
                     this.trigger('_requireMediaUpload');
+                },
+                'click .self .name': function (e) {
+                    var user = {
+                        id: $(e.target).closest('.user').attr('data-id'),
+                        name: prompt("What's your name?")
+                    };
+                    this.trigger('_update', user);
                 }
             },
             template: (function () { return $('#template-user').html() }()),
@@ -192,21 +201,17 @@
                 this.$el.append(html);
             },
             remove: function (user) {
-                var $el = this.$el.find('#user'+user.id);
+                var $el = this.$el.find('#user-'+user.id);
                 $el.remove();
             },
             update: function (user) {
-                console.log(user);
-                var $el = this.$el.find('#user'+user.id);
+                var $el = this.$el.find('#user-'+user.id);
                 var html = this.render(user);
-                $el.html( html );
+                $el.replaceWith( html );
             }
         });
 
         var UsersController = Backbone.View.extend({
-            elements: {
-                $webcam: $('#webcam')
-            },
             initialize: function () {
                 var t = this;
                 var usersCollection = this.usersCollection = new UsersCollection();
@@ -215,6 +220,8 @@
                 usersListView.on('_requireMediaUpload', function () {
                     t.trigger('_requireMediaUpload');
                 });
+
+                usersListView.on('_update', function (user) { t.edit(user) });
 
                 usersCollection.on('add', function (user) {
                     usersListView.add(user.toJSON());
@@ -227,6 +234,7 @@
                 usersCollection.on('change', function (user) {
                     usersListView.update(user.toJSON());
                 });
+
             },
             add: function (user) {
                 this.usersCollection.add(user);
@@ -241,7 +249,21 @@
                 }
             },
             get: function (id) {
-                return this.usersCollection.get(id).toJSON();
+                var model = this.usersCollection.get(id);
+                if (model) {
+                    return model.toJSON();
+                } else {
+                    return false;
+                }
+            },
+            edit: function (user) {
+                var t = this;
+                var userModel = t.usersCollection.where({id:user.id})[0].toJSON();
+                delete user.id;
+                _.each(user, function (value, attribute) {
+                    userModel[attribute] = value;
+                });
+                t.trigger('_userUpdated', userModel);
             }
         });
 
@@ -373,7 +395,8 @@
                 var chatCollection = this.chatCollection = new ChatCollection();
                 var chatMessagesListView = this.chatMessagesListView = new ChatMessagesListView();
                 chatMessagesListView.on('_chatMessageAdded', function (message) {
-                    t.chatCollection.add({message:message});
+                    t.trigger('_chatMessageAdded', message);
+                    //t.chatCollection.add({message:message});
                 });
                 chatCollection.on('add', function (message) {
                     t.chatMessagesListView.add( message.toJSON() );
@@ -381,9 +404,6 @@
                 });
                 chatMessagesListView.on('_requestNotificationsPermission', function () {
                     t.requestNotificationsPermission();
-                });
-                this.on('messageAdded', function (message) {
-                    chatCollection.add(message);
                 });
                 this.checkNotificationPermissionStatus();
             },
@@ -398,6 +418,9 @@
                         t.chatMessagesListView.showPermissionLink();
                     }
                 }
+            },
+            add: function (message) {
+                this.chatCollection.add(message);
             }
         });
 
@@ -427,15 +450,28 @@
 
                 return this.elements.feed.toDataURL();
             },
+            requestCapturePermission: function (callback) {
+                var t = this;
+                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
+                    t.startStream(stream);
+                });
+            },
             startStream: function (stream) {
                 this.$el.get(0).src = window.webkitURL.createObjectURL(stream);
                 this.show();
+            },
+            stopStream: function (stream) {
+                this.$el.get(0).src = window.webkitURL.createObjectURL(null);
             },
             show: function () {
                 this.$el.addClass('open');
             },
             hide: function () {
+                var t = this;
                 this.$el.removeClass('open');
+                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
+                    t.stopStream(stream);
+                });
             }
         });
 
@@ -451,13 +487,7 @@
 
             },
             capture: function () {
-                this.requestCapturePermission();
-            },
-            requestCapturePermission: function (callback) {
-                var t = this;
-                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
-                    t.mediaCaptureView.startStream(stream);
-                });
+                this.mediaCaptureView.requestCapturePermission();
             }
         });
 
@@ -480,11 +510,9 @@
                     filesController.add(file);
                 });
                 this.on('newUser', function (user) {
-                    console.log(socket.socket.sessionid, user.id);
                     if (user.id === socket.socket.sessionid) {
                         user.self = true;
                     }
-                    console.log('!', user);
                     usersController.add(user);
                 });
                 this.on('userRemoved', function (user) {
@@ -508,10 +536,17 @@
                     mediaController.capture();
                 });
 
+                usersController.on('_userUpdated', function (user) {
+                    if (user.self) { delete user.self; }
+                    socket.emit('userUpdated', user);
+                });
+
                 chatController.on('_chatMessageAdded', function (message) {
                     if (!message.user) {
                         message.user = socket.socket.sessionid;
                         socket.emit('chatMessageAdded', message);
+                        message.self = true;
+                        chatController.add(message);
                     } else {
                         t.growl(message.user, message.message);
                     }
@@ -519,9 +554,12 @@
 
                 this.on('newMessage', function (message) {
 
+                    console.log(message);
+
                     if (message.user !== socket.socket.sessionid) {
                         console.log('there was a new message from the server! we will accept it.');
-                        chatController.trigger('messageAdded', message);
+                        message.user = usersController.get(message.user);
+                        chatController.add(message);
                     } else {
                         console.log('there was a new message from the server but we will ignore it');
                     }
@@ -555,17 +593,14 @@
 
         socket.on( '_currentUserModified', function (user) {
             user.self = 'true';
-            console.log('self modified', user);
             appController.trigger('newUser', user);
         });
 
         socket.on( '_userAdded', function (user) {
-            console.log('new user');
             appController.trigger('newUser', user);
         });
 
         socket.on( '_getAllUsers', function (users) {
-            console.log('all users');
             _.each(users, function (user) {
                 appController.trigger('newUser', user);
             });
@@ -573,14 +608,12 @@
 
         socket.on( '_getAllMessages', function (messages) {
 
-            console.log('all messages', messages);
             _.each(messages, function (message) {
                 appController.trigger('newMessage', message);
             });
         });
 
         socket.on( '_userRemoved', function (user) {
-            console.log('removed');
             appController.trigger('userRemoved', user);
         });
 
@@ -589,7 +622,6 @@
         });
 
         socket.on('_chatMessageAdded', function (message) {
-            if (message.user)
             appController.trigger('newMessage', message);
         });
 
