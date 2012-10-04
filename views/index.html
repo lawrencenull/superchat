@@ -19,6 +19,12 @@
             text-align: center;
             width: 600px;
         }
+        .hide {
+            display: none !important;
+        }
+        .show {
+            display: none !important;
+        }
         #dropzone {
             border:4px dashed red;
         }
@@ -36,6 +42,7 @@
             padding: 10px;
         }
         #users-list img {
+            cursor: pointer;
             float: left;
             height: 100%;
             margin-right: 10px;
@@ -77,8 +84,12 @@
         }
         #webcam,
         #webcam-feed {
+            display: none;
             height: 300px;
             width: 100%;
+        }
+        #webcam.open {
+            display: block;
         }
         #snapshot {
             display: block;
@@ -97,7 +108,7 @@
     <div id="users-list"></div>
 
     <form id="chat">
-        <h2>Chat</h2>
+        <h2>Chat <a id="request-chat-notifications-permission" class="hide" href="#">(Click for Growl-like Notifications!)</a></h2>
         <ul id="chat-messages-list"></ul>
         <input type="text" placeholder="Message Here...">
     </form>
@@ -127,7 +138,10 @@
         var UserModel = Backbone.Model.extend({
           defaults: {
             'name': 'New User',
-            'self': 'true'
+            'self': 'true',
+            'image': {
+                'data': '/images/default-user-image.gif'
+            }
           },
           initialize: function () {
             this.on('add', function (user) {
@@ -233,6 +247,7 @@
             initialize: function () {
                 this.$el.$input = this.$el.find('input');
                 this.$el.$messagesList = $('#chat-messages-list');
+                this.$el.$requestPermission = $('#request-chat-notifications-permission');
             },
             events: {
                 'submit': function (e) {
@@ -242,6 +257,10 @@
                         this.$el.$input.val('');
                         this.trigger('_chatMessageAdded', val);
                     }
+                },
+                'click #request-chat-notifications-permission': function (e) {
+                    e.preventDefault();
+                    this.trigger('_requestNotificationsPermission');
                 }
             },
             template: $('#template-chat-message').html(),
@@ -251,6 +270,12 @@
             add: function (file) {
                 var html = this.render(file);
                 this.$el.$messagesList.append(html).scrollTop(99999);
+            },
+            hidePermissionLink: function () {
+                this.$el.$requestPermission.addClass('hide');
+            },
+            showPermissionLink: function () {
+                this.$el.$requestPermission.removeClass('hide');
             }
 
         });
@@ -266,9 +291,25 @@
                     t.chatMessagesListView.add( message.toJSON() );
                     t.trigger('_chatMessageAdded', message.toJSON() );
                 });
+                chatMessagesListView.on('_requestNotificationsPermission', function () {
+                    t.requestNotificationsPermission();
+                });
                 this.on('messageAdded', function (message) {
                     chatCollection.add(message);
                 });
+                this.checkNotificationPermissionStatus();
+            },
+            requestNotificationsPermission: function () {
+                var t = this;
+                window.webkitNotifications.requestPermission(function () { t.chatMessagesListView.hidePermissionLink(); });
+            },
+            checkNotificationPermissionStatus: function () {
+                var t = this;
+                if (window.webkitNotifications) {
+                    if (window.webkitNotifications.checkPermission() !== 0) {
+                        t.chatMessagesListView.showPermissionLink();
+                    }
+                }
             }
         });
 
@@ -371,7 +412,6 @@
                 note.ondisplay = function() {  var hide = setTimeout(function () { console.log(note); note.close(); }, 2500) };
                 note.show();
               } else {
-                alert('mind to turn on notifications?');
                 window.webkitNotifications.requestPermission();
               }
             }
@@ -437,29 +477,22 @@
             appController.trigger('userImageUpdated', data);
         });
 
-    
 
-
-            test = function () {
-                window.webkitNotifications.requestPermission();
-            };
-
-        
-            $('body').on('click', test);
-
-
-            navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
-                var video = $('#webcam')[0];
-                video.src = window.webkitURL.createObjectURL(stream);
-                console.log('success');
+            $('#users-list').on('click', 'img', function () {
+                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
+                    var video = $('#webcam')[0];
+                    video.src = window.webkitURL.createObjectURL(stream);
+                    $('#webcam').addClass('open');
                 });
-
-            var $feed = $('#webcam-feed');
-            var feed = $feed[0].getContext('2d');
-            var $video = $('#webcam');
-            var video = $video[0];
+            });
+            
 
             var snapshot = function () {
+
+                var $feed = $('#webcam-feed');
+                var feed = $feed[0].getContext('2d');
+                var $video = $('#webcam');
+                var video = $video[0];
                 $feed.width( video.videoWidth );
                 $feed.height( video.videoHeight );
                 $feed[0].setAttribute('width', video.videoWidth );
@@ -467,6 +500,7 @@
                 feed.drawImage(video, 0, 0);
                 var data = $feed[0].toDataURL();
                 socket.emit('userImageUpdated', { data: data });
+                $video.removeClass('open');
             };
 
             $('#webcam').on('click', snapshot);
