@@ -114,7 +114,7 @@
     </form>
 
     <script id="template-file" type="text/handlebars">
-        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{authorID}} at {{timestamp}})</a></li>
+        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{user}} at {{timestamp}})</a></li>
     </script>
 
     <script id="template-user" type="text/handlebars">
@@ -135,6 +135,20 @@
 
         var socket = io.connect('http://'+document.domain+':8080');
 
+        Backbone.Model.prototype.update = function(model){  
+            var t = this;
+            // update or add all new values
+            _.each(model, function (value, attribute) {
+                t.set(attribute, value);
+            });
+            // if new value is missing, delete old value
+            _.each(this.attributes, function (value, attribute) {
+                if (!model[attribute]) {
+                    t.unset(attribute);
+                }
+            });          
+        };
+
         var UserModel = Backbone.Model.extend({
           defaults: {
             'name': 'New User',
@@ -144,12 +158,6 @@
             }
           },
           initialize: function () {
-            this.on('add', function (user) {
-                appController.trigger('newUserAdded', user);
-            });
-            this.on('remove', function (user) {
-                appController.trigger('userRemoved', user);
-            });
           }
         });
 
@@ -160,9 +168,6 @@
         var UsersListView = Backbone.View.extend({
             el: '#users-list',
             template: (function () { return $('#template-user').html() }()),
-            initialize: function () {
-                this.on('add', this.add);
-            },
             render: function (user) {
                 return Mustache.render(this.template, user);
             },
@@ -182,22 +187,45 @@
             }
         });
 
-        var AppModel = Backbone.Model.extend({
+        var UsersController = Backbone.View.extend({
             initialize: function () {
-                this.on('change', function () {
-                    appController.trigger('change', {
-                        model: this,
-                        changes: arguments[1].changes
-                    });
+                var usersCollection = this.usersCollection = new UsersCollection();
+                var usersListView = this.usersListView = new UsersListView();
+
+                usersCollection.on('add', function (user) {
+                    usersListView.add(user.toJSON());
                 });
+
+                usersCollection.on('remove', function (user) {
+                    usersListView.remove(user.toJSON());
+                });
+
+                usersCollection.on('change', function (user) {
+                    usersListView.update(user.toJSON());
+                });
+            },
+            add: function (user) {
+                this.usersCollection.add(user);
+            },
+            remove: function (user) {
+                this.usersCollection.remove(user);
+            },
+            update: function (user) {
+                userModel = this.usersCollection.where({id:user.id})[0];
+                if (userModel) {
+                    userModel.update(user);
+                }
             }
         });
 
+        var AppModel = Backbone.Model.extend({
+            initialize: function () {
+            }
+        });
         var FileModel = Backbone.Model.extend({
             defaults: {
-                'name': 'file.txt',
+                'name': 'no-file.txt',
                 'data': 'data:',
-                'author': 'New Author',
                 'timestamp': 'New Date',
                 'location': {
                     'offsetX': 0,
@@ -209,9 +237,6 @@
         var FilesCollection = Backbone.Collection.extend({
             model: FileModel,
             initialize: function () {
-                this.on('add', function (file) {
-                    appController.trigger('newFileAdded', file);
-                });
             }
         });
 
@@ -231,10 +256,50 @@
             }
         });
 
+        var FileDropView = Backbone.View.extend({
+            el: 'body',
+            events: {
+                'dragover': function () {
+                    this.$el.addClass('dragover');
+                },
+                'dragleave': function () {
+                    this.$el.removeClass('dragover');
+                },
+                'drop': function (e) {
+                    e.preventDefault();
+                    this.$el.removeClass('dragover');
+                    this.trigger('_fileAdded', e.originalEvent.dataTransfer.files[0]);
+                }
+            }
+        });
+
         var FilesController = Backbone.View.extend({
             initialize: function () {
+                var t = this;
                 var filesCollection = this.filesCollection = new FilesCollection();
                 var filesListView = this.filesListView = new FilesListView();
+                var fileDropView = this.fileDropView = new FileDropView();
+
+                this.on('add', function (file) {
+                    filesCollection.add(file);
+                });
+
+
+                filesCollection.on('add', function (file) {
+                    filesListView.trigger('add', file.toJSON() );
+                });
+
+
+                fileDropView.on('_fileAdded', function (file) {
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        t.trigger('_fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            },
+            add: function (file) {
+                this.filesCollection.add(file);
             }
         });
 
@@ -313,72 +378,32 @@
             }
         });
 
-        var DashboardView = Backbone.View.extend({
-            el: 'body',
-            events: {
-                'dragover': function () {
-                    this.$el.addClass('dragover');
-                },
-                'dragleave': function () {
-                    this.$el.removeClass('dragover');
-                },
-                'drop': function (e) {
-                    e.preventDefault();
-                    this.$el.removeClass('dragover');
-                    appController.trigger('newFileDropped', e.originalEvent.dataTransfer.files[0]);
-                }
-            }
-        });
 
         var AppController = Backbone.View.extend({
             initialize: function () {
                 var t = this;
-                var appModel = new AppModel();
-                var dashboardView = new DashboardView();
-                var filesCollection = new FilesCollection();
-                var filesListView = new FilesListView();
-                var usersCollection = new UsersCollection();
-                var usersListView = new UsersListView();
-
+                var filesController = new FilesController();
+                var usersController = new UsersController();
                 var chatController = new ChatController();
 
-                this.on('newFileDropped', function (file) {
-                    var self = usersCollection.where({'self':'true'})[0];
-                    var reader = new FileReader();
-                    reader.onload = function () {
-                        socket.emit('fileAdded', { name: file.name, timestamp: new Date().getTime(), data: this.result, authorID: self.id });
-                    };
-                    reader.readAsDataURL(file);
-                });
-                this.on('newFileFromServer', function (file) {
-                    filesCollection.add(file);
-                });
-                this.on('newFileAdded', function (file) {
-                    filesListView.trigger('add', file.toJSON() );
-                });
-                this.on('newUserFromServer', function (user) {
-                    usersCollection.add(user);
-                    console.log(user);
-                });
-                this.on('newUserAdded', function (user) {
-                    usersListView.trigger('add', user.toJSON() );
-                });
-                this.on('userRemovedFromServer', function (user) {
-                    usersCollection.remove(user);
-                });
-                this.on('userRemoved', function (user) {
-                    usersListView.remove(user);
-                });
-                this.on('userImageUpdated', function (user) {
-                    var userModel = usersCollection.where({id:user.id});
-                    if (userModel.length > 0) {
-                        userModel[0].set('image', user.image);
-                    }
-                });
-                usersCollection.on('change', function (user) {
-                    usersListView.update( user.toJSON() );
+                filesController.on('_fileAdded', function (file) {
+                    file.user = socket.socket.sessionid;
+                    console.log(file);
+                    socket.emit('fileAdded', file);
                 });
 
+                this.on('newFile', function (file) {
+                    filesController.add(file);
+                });
+                this.on('newUser', function (user) {
+                    usersController.add(user);
+                });
+                this.on('userRemoved', function (user) {
+                    usersController.remove(user);
+                });
+                this.on('userUpdated', function (user) {
+                    usersController.update(user);
+                });
 
                 chatController.on('_chatMessageAdded', function (message) {
                     if (!message.user) {
@@ -389,11 +414,7 @@
                     }
                 });
 
-                this.on('debug', function () {
-                    console.log(filesCollection);
-                });
-
-                this.on('newMessageFromServer', function (message) {
+                this.on('newMessage', function (message) {
 
                     if (message.user !== socket.socket.sessionid) {
                         console.log('there was a new message from the server! we will accept it.');
@@ -407,7 +428,7 @@
             },
             growl: function (user, message) {
              if (window.webkitNotifications.checkPermission() === 0) { // 0 is PERMISSION_ALLOWED
-                console.log('allowed');
+                console.log('notifications were permitted');
                 var note = window.webkitNotifications.createNotification('', user, message);
                 note.ondisplay = function() {  var hide = setTimeout(function () { console.log(note); note.close(); }, 2500) };
                 note.show();
@@ -420,30 +441,30 @@
         appController = new AppController();
 
         socket.on('_newFile', function (file) {
-            appController.trigger('newFileFromServer', file);
+            appController.trigger('newFile', file);
         });
 
         socket.on( '_getAllFiles', function (files) {
             _.each(files, function (file) {
-                appController.trigger('newFileFromServer', file);
+                appController.trigger('newFile', file);
             });
         });
 
         socket.on( '_currentUserModified', function (user) {
             user.self = 'true';
             console.log('self modified', user);
-            appController.trigger('newUserFromServer', user);
+            appController.trigger('newUser', user);
         });
 
         socket.on( '_userAdded', function (user) {
             console.log('new user');
-            appController.trigger('newUserFromServer', user);
+            appController.trigger('newUser', user);
         });
 
         socket.on( '_getAllUsers', function (users) {
             console.log('all users');
             _.each(users, function (user) {
-                appController.trigger('newUserFromServer', user);
+                appController.trigger('newUser', user);
             });
         });
 
@@ -451,13 +472,13 @@
 
             console.log('all messages', messages);
             _.each(messages, function (message) {
-                appController.trigger('newMessageFromServer', message);
+                appController.trigger('newMessage', message);
             });
         });
 
         socket.on( '_userRemoved', function (user) {
             console.log('removed');
-            appController.trigger('userRemovedFromServer', user);
+            appController.trigger('userRemoved', user);
         });
 
         socket.on( '_error', function (error) {
@@ -466,7 +487,7 @@
 
         socket.on('_chatMessageAdded', function (message) {
             if (message.user)
-            appController.trigger('newMessageFromServer', message);
+            appController.trigger('newMessage', message);
         });
 
         socket.on('_reload', function () {
@@ -474,7 +495,7 @@
         });
 
         socket.on('_userImageUpdated', function (data) {
-            appController.trigger('userImageUpdated', data);
+            appController.trigger('userUpdated', data);
         });
 
 
