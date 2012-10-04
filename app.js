@@ -173,6 +173,7 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_userSessionEnded', socket);
     });
     socket.on('fileAdded', function (data) {
+        console.log(data);
         appController.trigger('_fileAdded', data);
     });
     socket.on('chatMessageAdded', function (data) {
