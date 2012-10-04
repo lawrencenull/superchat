@@ -350,13 +350,13 @@
                     socket.emit('fileAdded', file);
                 });
 
-                this.on('newFileFromServer', function (file) {
+                this.on('newFile', function (file) {
                     filesController.add(file);
                 });
-                this.on('newUserFromServer', function (user) {
+                this.on('newUser', function (user) {
                     usersController.add(user);
                 });
-                this.on('userRemovedFromServer', function (user) {
+                this.on('userRemoved', function (user) {
                     usersController.remove(user);
                 });
                 this.on('userUpdated', function (user) {
@@ -372,7 +372,7 @@
                     }
                 });
 
-                this.on('newMessageFromServer', function (message) {
+                this.on('newMessage', function (message) {
 
                     if (message.user !== socket.socket.sessionid) {
                         console.log('there was a new message from the server! we will accept it.');
@@ -399,30 +399,30 @@
         appController = new AppController();
 
         socket.on('_newFile', function (file) {
-            appController.trigger('newFileFromServer', file);
+            appController.trigger('newFile', file);
         });
 
         socket.on( '_getAllFiles', function (files) {
             _.each(files, function (file) {
-                appController.trigger('newFileFromServer', file);
+                appController.trigger('newFile', file);
             });
         });
 
         socket.on( '_currentUserModified', function (user) {
             user.self = 'true';
             console.log('self modified', user);
-            appController.trigger('newUserFromServer', user);
+            appController.trigger('newUser', user);
         });
 
         socket.on( '_userAdded', function (user) {
             console.log('new user');
-            appController.trigger('newUserFromServer', user);
+            appController.trigger('newUser', user);
         });
 
         socket.on( '_getAllUsers', function (users) {
             console.log('all users');
             _.each(users, function (user) {
-                appController.trigger('newUserFromServer', user);
+                appController.trigger('newUser', user);
             });
         });
 
@@ -430,13 +430,13 @@
 
             console.log('all messages', messages);
             _.each(messages, function (message) {
-                appController.trigger('newMessageFromServer', message);
+                appController.trigger('newMessage', message);
             });
         });
 
         socket.on( '_userRemoved', function (user) {
             console.log('removed');
-            appController.trigger('userRemovedFromServer', user);
+            appController.trigger('userRemoved', user);
         });
 
         socket.on( '_error', function (error) {
@@ -445,7 +445,7 @@
 
         socket.on('_chatMessageAdded', function (message) {
             if (message.user)
-            appController.trigger('newMessageFromServer', message);
+            appController.trigger('newMessage', message);
         });
 
         socket.on('_reload', function () {
