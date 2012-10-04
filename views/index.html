@@ -340,10 +340,8 @@
         var AppController = Backbone.View.extend({
             initialize: function () {
                 var t = this;
-                var appModel = new AppModel();
                 var filesController = new FilesController();
                 var usersController = new UsersController();
-
                 var chatController = new ChatController();
 
                 filesController.on('_fileAdded', function (file) {
@@ -361,13 +359,9 @@
                 this.on('userRemovedFromServer', function (user) {
                     usersController.remove(user);
                 });
-                this.on('userRemoved', function (user) {
-                    usersListView.remove(user);
-                });
                 this.on('userUpdated', function (user) {
                     usersController.update(user);
                 });
-
 
                 chatController.on('_chatMessageAdded', function (message) {
                     if (!message.user) {
@@ -376,10 +370,6 @@
                     } else {
                         t.growl(message.user, message.message);
                     }
-                });
-
-                this.on('debug', function () {
-                    console.log(filesCollection);
                 });
 
                 this.on('newMessageFromServer', function (message) {
@@ -396,12 +386,11 @@
             },
             growl: function (user, message) {
              if (window.webkitNotifications.checkPermission() === 0) { // 0 is PERMISSION_ALLOWED
-                console.log('allowed');
+                console.log('notifications were permitted');
                 var note = window.webkitNotifications.createNotification('', user, message);
                 note.ondisplay = function() {  var hide = setTimeout(function () { console.log(note); note.close(); }, 2500) };
                 note.show();
               } else {
-                alert('mind to turn on notifications?');
                 window.webkitNotifications.requestPermission();
               }
             }
