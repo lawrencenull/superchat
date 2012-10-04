@@ -24,32 +24,31 @@ exports.init = function(d) {
       initialize: function () {
           var t = this;
           var usersCollection = this.usersCollection = new UsersCollection();
+
           usersCollection.on('add', function (user) {
-              t.trigger('_userAdded', user);
+              t.trigger('_userAdded', user.toJSON() );
           });
           usersCollection.on('remove', function (user) {
-            t.trigger('_userRemoved', user);
+            t.trigger('_userRemoved', user.toJSON() );
           });
           usersCollection.on('change', function (user) {
-            t.trigger('_userImageUpdated', user.toJSON() );
+            t.trigger('_userUpdated', user.toJSON() );
           });
-          this.on('userAdded', function (user) {
-              usersCollection.add(user);
-          });
-          this.on('userRemoved', function (user) {
-            var userID = user.id;
-            var user = usersCollection.where({id:user.id})[0];
-            usersCollection.remove(user);
-          });
-          this.on('userImageUpdated', function (user, image) {
-            var userModel = usersCollection.where({id:user});
-            if (userModel.length > 0) {
-              userModel[0].set('image', image);
-            }
-          });
+
       },
       render: function () {
           return this.usersCollection.toJSON();
+      },
+      update: function (user) {
+          var userModel = this.usersCollection.where({id:user.id})[0];
+          userModel.update(user);
+      },
+      add: function (user) {
+          this.usersCollection.add(user);
+      },
+      remove: function (user) {
+          var userModel = this.usersCollection.where({id:user.id})[0];
+          this.usersCollection.remove(userModel);
       }
   });
 

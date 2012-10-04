@@ -63,6 +63,21 @@ http.createServer(app)
   Backbone setup
   */
 
+// Add update method to all models
+
+Backbone.Model.prototype.update = function(model){  
+    var t = this;
+    // update or add all new values
+    _.each(model, function (value, attribute) {
+        t.set(attribute, value);
+    });
+    // if new value is missing, delete old value
+    _.each(this.attributes, function (value, attribute) {
+        if (!model[attribute]) {
+            t.unset(attribute);
+        }
+    });          
+};
 
 // Make Backbone DOM-independent
 
@@ -97,7 +112,7 @@ var AppController = Backbone.Model.extend({
 
         // file listeners
         filesController.on('_newFile', function (file) {
-            t.notify('newFile', file.toJSON());
+            t.notify( 'newFile', file );
         });
         filesController.on('_error', function (params) {
             if (params.user) {
@@ -114,8 +129,8 @@ var AppController = Backbone.Model.extend({
         usersController.on('_userRemoved', function (user) {
             t.notify('userRemoved', user);
         });
-        usersController.on('_userImageUpdated', function (user) {
-            t.notify('userImageUpdated', user);
+        usersController.on('_userUpdated', function (user) {
+            t.notify('userUpdated', user);
         });
 
         // socket notifications
@@ -126,16 +141,16 @@ var AppController = Backbone.Model.extend({
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
             t.message(user.id, 'getAllMessages', chatController.render());
-            usersController.trigger('userAdded', {
+            usersController.add({
                 id: user.id
             });
         });
         this.on('_userSessionEnded', function (user) {
-            usersController.trigger('userRemoved', user);
+            usersController.remove(user);
         });
 
-        this.on('_userImageUpdated', function (user, image) {
-            usersController.trigger('userImageUpdated', user.id, image);
+        this.on('_userUpdated', function (user) {
+            usersController.update(user);
         });
 
         // chat listeners
@@ -182,7 +197,8 @@ socket_io.sockets.on('connection', function (socket) {
     socket.on('reloadRequest', function (data) {
         appController.notify('reload');
     });
-    socket.on('userImageUpdated', function (data) {
-        appController.trigger('_userImageUpdated', socket, data);
+    socket.on('userUpdated', function (data) {
+        console.log(socket.id);
+        appController.trigger('_userUpdated', data);
     });
 });

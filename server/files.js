@@ -28,12 +28,7 @@ exports.init = function(d) {
     });
 
     var FilesCollection = Backbone.Collection.extend({
-        model: FileModel,
-        /*initialize: function () {
-            this.on('add', function (file) {
-                appController.trigger('newFileAdded', file);
-            });
-        }*/
+        model: FileModel
     });
 
     return FilesController = Backbone.View.extend({

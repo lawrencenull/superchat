@@ -42,10 +42,22 @@
             padding: 10px;
         }
         #users-list img {
-            cursor: pointer;
             float: left;
             height: 100%;
             margin-right: 10px;
+        }
+        #users-list .self .name {
+            font-weight: bold;
+        }
+        #users-list .self .name:after {
+            content: " (That's you!)";
+            font-weight: normal;
+        }
+        #users-list .self img {
+            cursor: pointer;
+        }
+        #users-list .self img:hover {
+            opacity: .7;
         }
 
         #chat-messages-list {
@@ -118,11 +130,11 @@
     </script>
 
     <script id="template-user" type="text/handlebars">
-        <li id="user{{id}}">{{#image}}<img src="{{image.data}}">{{/image}}{{name}}</li>
+        <li id="user{{id}}" class="{{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span></li>
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message{{id}}" class="{{^user}}self{{/user}}"><span class="user">{{#user}}{{user}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
+        <li id="message{{id}}" class="{{#self}}self{{/self}}"><span class="user">{{#user}}{{user}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -151,8 +163,7 @@
 
         var UserModel = Backbone.Model.extend({
           defaults: {
-            'name': 'New User',
-            'self': 'true',
+            'name': 'Anonymous',
             'image': {
                 'data': '/images/default-user-image.gif'
             }
@@ -162,11 +173,16 @@
         });
 
         var UsersCollection = Backbone.Collection.extend({
-          model: UserModel
+            model: UserModel
         });
 
         var UsersListView = Backbone.View.extend({
             el: '#users-list',
+            events: {
+                'click .self img': function (e) {
+                    this.trigger('_requireMediaUpload');
+                }
+            },
             template: (function () { return $('#template-user').html() }()),
             render: function (user) {
                 return Mustache.render(this.template, user);
@@ -188,9 +204,17 @@
         });
 
         var UsersController = Backbone.View.extend({
+            elements: {
+                $webcam: $('#webcam')
+            },
             initialize: function () {
+                var t = this;
                 var usersCollection = this.usersCollection = new UsersCollection();
                 var usersListView = this.usersListView = new UsersListView();
+
+                usersListView.on('_requireMediaUpload', function () {
+                    t.trigger('_requireMediaUpload');
+                });
 
                 usersCollection.on('add', function (user) {
                     usersListView.add(user.toJSON());
@@ -211,17 +235,16 @@
                 this.usersCollection.remove(user);
             },
             update: function (user) {
-                userModel = this.usersCollection.where({id:user.id})[0];
+                var userModel = this.usersCollection.where({id:user.id})[0];
                 if (userModel) {
                     userModel.update(user);
                 }
+            },
+            get: function (id) {
+                return this.usersCollection.get(id).toJSON();
             }
         });
 
-        var AppModel = Backbone.Model.extend({
-            initialize: function () {
-            }
-        });
         var FileModel = Backbone.Model.extend({
             defaults: {
                 'name': 'no-file.txt',
@@ -378,6 +401,66 @@
             }
         });
 
+        var MediaCaptureView = Backbone.View.extend({
+            el: '#webcam',
+            elements: {
+                feed: $('#webcam-feed').get(0)
+            },
+            events: {
+                'click': function (e) {
+                    e.preventDefault();
+                    this.trigger('_mediaCaptured', this.takePhoto() );
+                }
+            },
+            takePhoto: function () {
+                var canvas = this.elements.feed.getContext('2d');
+
+                var videoWidth = this.$el.get(0).videoWidth;
+                var videoHeight = this.$el.get(0).videoHeight;
+
+                $(this.elements.feed).width( videoWidth );
+                $(this.elements.feed).height( videoWidth );
+                this.elements.feed.setAttribute( 'width', videoWidth );
+                this.elements.feed.setAttribute( 'height', videoWidth );
+
+                canvas.drawImage( this.$el.get(0), 0, 0 );
+
+                return this.elements.feed.toDataURL();
+            },
+            startStream: function (stream) {
+                this.$el.get(0).src = window.webkitURL.createObjectURL(stream);
+                this.show();
+            },
+            show: function () {
+                this.$el.addClass('open');
+            },
+            hide: function () {
+                this.$el.removeClass('open');
+            }
+        });
+
+        var MediaController = Backbone.View.extend({
+            initialize: function () {
+                var t = this;
+                var mediaCaptureView = this.mediaCaptureView = new MediaCaptureView();
+
+                mediaCaptureView.on('_mediaCaptured', function (media) {   
+                    t.trigger('_mediaCaptured', { data: media });
+                    mediaCaptureView.hide();
+                });
+
+            },
+            capture: function () {
+                this.requestCapturePermission();
+            },
+            requestCapturePermission: function (callback) {
+                var t = this;
+                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
+                    t.mediaCaptureView.startStream(stream);
+                });
+            }
+        });
+
 
         var AppController = Backbone.View.extend({
             initialize: function () {
@@ -385,6 +468,7 @@
                 var filesController = new FilesController();
                 var usersController = new UsersController();
                 var chatController = new ChatController();
+                var mediaController = new MediaController();
 
                 filesController.on('_fileAdded', function (file) {
                     file.user = socket.socket.sessionid;
@@ -396,13 +480,32 @@
                     filesController.add(file);
                 });
                 this.on('newUser', function (user) {
+                    console.log(socket.socket.sessionid, user.id);
+                    if (user.id === socket.socket.sessionid) {
+                        user.self = true;
+                    }
+                    console.log('!', user);
                     usersController.add(user);
                 });
                 this.on('userRemoved', function (user) {
                     usersController.remove(user);
                 });
                 this.on('userUpdated', function (user) {
+                    if (user.id === socket.socket.sessionid) {
+                        user.self = true;
+                    }
                     usersController.update(user);
+                });
+
+                mediaController.on('_mediaCaptured', function (media) {
+                    var user = usersController.get(socket.socket.sessionid);
+                    user.image = media;
+                    if (user.self) { delete user.self; }
+                    socket.emit('userUpdated', user);
+                });
+
+                usersController.on('_requireMediaUpload', function () { 
+                    mediaController.capture();
                 });
 
                 chatController.on('_chatMessageAdded', function (message) {
@@ -430,7 +533,7 @@
              if (window.webkitNotifications.checkPermission() === 0) { // 0 is PERMISSION_ALLOWED
                 console.log('notifications were permitted');
                 var note = window.webkitNotifications.createNotification('', user, message);
-                note.ondisplay = function() {  var hide = setTimeout(function () { console.log(note); note.close(); }, 2500) };
+                note.ondisplay = function() { var hide = setTimeout(function () { console.log(note); note.close(); }, 2500) };
                 note.show();
               } else {
                 window.webkitNotifications.requestPermission();
@@ -494,38 +597,9 @@
             window.location = window.location;
         });
 
-        socket.on('_userImageUpdated', function (data) {
+        socket.on('_userUpdated', function (data) {
             appController.trigger('userUpdated', data);
         });
-
-
-            $('#users-list').on('click', 'img', function () {
-                navigator.webkitGetUserMedia({video:true,audio:true}, function (stream) {
-                    var video = $('#webcam')[0];
-                    video.src = window.webkitURL.createObjectURL(stream);
-                    $('#webcam').addClass('open');
-                });
-            });
-            
-
-            var snapshot = function () {
-
-                var $feed = $('#webcam-feed');
-                var feed = $feed[0].getContext('2d');
-                var $video = $('#webcam');
-                var video = $video[0];
-                $feed.width( video.videoWidth );
-                $feed.height( video.videoHeight );
-                $feed[0].setAttribute('width', video.videoWidth );
-                $feed[0].setAttribute('height', video.videoHeight);
-                feed.drawImage(video, 0, 0);
-                var data = $feed[0].toDataURL();
-                socket.emit('userImageUpdated', { data: data });
-                $video.removeClass('open');
-            };
-
-            $('#webcam').on('click', snapshot);
-
 
     </script>
 </body>
