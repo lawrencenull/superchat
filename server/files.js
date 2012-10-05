@@ -18,6 +18,7 @@ exports.init = function(d) {
             }
         },
         initialize: function () {
+            this.set('id',this.cid);
           this.on('change:isOnDisk', function (isOnDisk) {
               if (isOnDisk) {
                 this.unset('data');

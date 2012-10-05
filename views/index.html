@@ -128,7 +128,7 @@
     </form>
 
     <script id="template-file" type="text/handlebars">
-        <li><a href="/files/{{name}}" download="{{name}}">{{name}} ({{user}} at {{timestamp}})</a></li>
+        <li id="file-{{id}}" data-id="{{id}}"><a href="/files/{{name}}" download="{{name}}">{{name}} ({{user}} at {{timestamp}})</a></li>
     </script>
 
     <script id="template-user" type="text/handlebars">
@@ -149,6 +149,8 @@
 
         var socket = io.connect('http://'+document.domain+':8080');
 
+        Backbone.Controller = Backbone.View;
+
         Backbone.Model.prototype.update = function(model, params){  
             var t = this;
             // update or add all new values
@@ -162,7 +164,8 @@
                         t.unset(attribute);
                     }
                 }); 
-            }         
+            }
+            this.trigger('update');      
         };
 
         var UserModel = Backbone.Model.extend({
@@ -213,7 +216,7 @@
             }
         });
 
-        var UsersController = Backbone.View.extend({
+        var UsersController = Backbone.Controller.extend({
             initialize: function () {
                 var t = this;
                 var usersCollection = this.usersCollection = new UsersCollection();
@@ -322,7 +325,7 @@
             }
         });
 
-        var FilesController = Backbone.View.extend({
+        var FilesController = Backbone.Controller.extend({
             initialize: function () {
                 var t = this;
                 var filesCollection = this.filesCollection = new FilesCollection();
@@ -397,7 +400,7 @@
             }
 
         });
-        var ChatController = Backbone.View.extend({
+        var ChatController = Backbone.Controller.extend({
             initialize: function () {
                 var t = this;
                 var chatCollection = this.chatCollection = new ChatCollection();
@@ -490,7 +493,7 @@
             }
         });
 
-        var MediaController = Backbone.View.extend({
+        var MediaController = Backbone.Controller.extend({
             initialize: function () {
                 var t = this;
                 var mediaCaptureView = this.mediaCaptureView = new MediaCaptureView();
@@ -507,7 +510,7 @@
         });
 
 
-        var AppController = Backbone.View.extend({
+        var AppController = Backbone.Controller.extend({
             initialize: function () {
                 var t = this;
                 var filesController = this.filesController = new FilesController();
