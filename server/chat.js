@@ -18,7 +18,7 @@ exports.init = function(d) {
     	model: MessageModel
     });
 
-    ChatController = Backbone.View.extend({
+    ChatController = Backbone.Controller.extend({
 
     	initialize: function () {
     		var t = this;

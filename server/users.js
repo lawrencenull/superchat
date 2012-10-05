@@ -20,7 +20,7 @@ exports.init = function(d) {
     model: UserModel
   });
 
-  return UsersController = Backbone.View.extend({
+  return UsersController = Backbone.Controller.extend({
       initialize: function () {
           var t = this;
           var usersCollection = this.usersCollection = new UsersCollection();

@@ -32,7 +32,7 @@ exports.init = function(d) {
         model: FileModel
     });
 
-    return FilesController = Backbone.View.extend({
+    return FilesController = Backbone.Controller.extend({
         initialize: function () {
             var t = this;
             var filesCollection = this.filesCollection = new FilesCollection();

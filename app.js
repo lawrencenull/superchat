@@ -65,6 +65,8 @@ http.createServer(app)
 
 // Add update method to all models
 
+Backbone.Controller = Backbone.View;
+
 Backbone.Model.prototype.update = function(model){  
     var t = this;
     // update or add all new values
