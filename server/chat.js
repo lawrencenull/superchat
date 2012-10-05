@@ -10,7 +10,7 @@ exports.init = function(d) {
 
     	},
     	initialize: function () {
-
+            this.set('id', this.cid);
     	}
     });
 
@@ -32,9 +32,22 @@ exports.init = function(d) {
     			t.trigger('_chatMessageAdded', message.toJSON() );
     		});
 
+            messagesCollection.on('change', function (message) {
+                t.trigger('_chatMessageUpdated', message.toJSON() );
+            });
+
     	},
         render: function () {
             return this.messagesCollection.toJSON();
+        },
+        update: function (data, params) {
+            if (params && params.type === 'user') {
+                var messageModels = this.messagesCollection.each(function (model) {
+                    if (model.toJSON().user.id === data.id) {
+                        model.set('user', data);
+                    }
+                });
+            }
         }
     });
 

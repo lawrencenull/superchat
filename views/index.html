@@ -41,6 +41,7 @@
             height: 100px;
             padding: 10px;
         }
+        #chat-messages-list img,
         #users-list img {
             float: left;
             height: 100%;
@@ -71,6 +72,7 @@
         }
         #chat-messages-list > li {
             background-color: #deffe0;
+            height: 100px;
             padding: 5px;
         }
         #chat-messages-list > li:nth-child(odd) {
@@ -134,7 +136,7 @@
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message-{{id}}" data-id="{{id}}" class="{{#self}}self{{/self}}"><span class="user">{{#user}}{{user.name}}{{/user}}{{^user}}You{{/user}}</span> {{message}}</li>
+        <li id="message-{{id}}" data-id="{{id}}" class="{{#user.self}}self{{/user.self}}"><img src="{{user.image.data}}"></img><span class="user">{{#user.self}}You{{/user.self}}{{^user.self}}{{user.name}}{{/user.self}}</span> {{message}}</li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -221,7 +223,9 @@
                     t.trigger('_requireMediaUpload');
                 });
 
-                usersListView.on('_update', function (user) { t.edit(user) });
+                usersListView.on('_update', function (user) {
+                    t.edit(user)
+                });
 
                 usersCollection.on('add', function (user) {
                     usersListView.add(user.toJSON());
@@ -374,12 +378,16 @@
                 }
             },
             template: $('#template-chat-message').html(),
-            render: function (file) {
-                return Mustache.render(this.template, file);
+            render: function (message) {
+                return Mustache.render(this.template, message);
             },
-            add: function (file) {
-                var html = this.render(file);
+            add: function (message) {
+                var html = this.render(message);
                 this.$el.$messagesList.append(html).scrollTop(99999);
+            },
+            update: function (message) {
+                var html = this.render(message);
+                this.$el.$messagesList.find('#message-'+message.id).replaceWith(html);
             },
             hidePermissionLink: function () {
                 this.$el.$requestPermission.addClass('hide');
@@ -400,6 +408,9 @@
                 chatCollection.on('add', function (message) {
                     t.chatMessagesListView.add( message.toJSON() );
                 });
+                chatCollection.on('change', function (message) {
+                    t.chatMessagesListView.update( message.toJSON() );
+                });
                 chatMessagesListView.on('_requestNotificationsPermission', function () {
                     t.requestNotificationsPermission();
                 });
@@ -419,6 +430,12 @@
             },
             add: function (message) {
                 this.chatCollection.add(message);
+            },
+            update: function (message) {
+                var model = this.chatCollection.where({id:message.id})[0];
+                if (model) {
+                    model.update(message);
+                }
             }
         });
 
@@ -493,10 +510,10 @@
         var AppController = Backbone.View.extend({
             initialize: function () {
                 var t = this;
-                var filesController = new FilesController();
-                var usersController = new UsersController();
-                var chatController = new ChatController();
-                var mediaController = new MediaController();
+                var filesController = this.filesController = new FilesController();
+                var usersController = this.usersController = new UsersController();
+                var chatController = this.chatController = new ChatController();
+                var mediaController = this.mediaController = new MediaController();
 
                 filesController.on('_fileAdded', function (file) {
                     file.user = socket.socket.sessionid;
@@ -540,22 +557,28 @@
                 });
 
                 chatController.on('_chatMessageAdded', function (message) {
-                    if (!message.user || (message.user && message.user.id !== socket.socket.sessionid) ) {
+                    if (!message.user) {// || (message.user && message.user.id !== socket.socket.sessionid) ) {
                         message.user = usersController.get(socket.socket.sessionid);
-                        console.log('sending to server',message);
+                        delete message.user.self;
                         socket.emit('chatMessageAdded', message);
-                        message.self = true;
-                        chatController.add(message);
                     } else {
                         t.growl(message.user, message.message);
                     }
                 });
 
+                this.on('chatMessageUpdated', function (message) {
+                    if (message.user && message.user.id === socket.socket.sessionid) {
+                        message.user.self = true;
+                    }
+                    chatController.update(message);
+                });
+
                 this.on('newMessage', function (message) {
                     // from server
-                    if (message.user && message.user.id !== socket.socket.sessionid) {
-                        chatController.add(message);
+                    if (message.user && message.user.id === socket.socket.sessionid) {
+                        message.user.self = true;
                     }
+                    chatController.add(message);
                 });
 
 
@@ -624,6 +647,10 @@
 
         socket.on('_userUpdated', function (data) {
             appController.trigger('userUpdated', data);
+        });
+
+        socket.on('_chatMessageUpdated', function (data) {
+            appController.trigger('chatMessageUpdated', data);
         });
 
     </script>

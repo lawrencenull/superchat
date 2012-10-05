@@ -130,9 +130,8 @@ var AppController = Backbone.Model.extend({
             t.notify('userRemoved', user);
         });
         usersController.on('_userUpdated', function (user) {
-
-            console.log('updated', user );
             t.notify('userUpdated', user);
+            chatController.update(user, { type: 'user' });
         });
 
         // socket notifications
@@ -162,6 +161,10 @@ var AppController = Backbone.Model.extend({
 
         chatController.on('_chatMessageAdded', function (message) {
             t.notify('chatMessageAdded', message);
+        });
+
+        chatController.on('_chatMessageUpdated', function (message) {
+            t.notify('chatMessageUpdated', message);
         });
 
         this.notify('reload');
