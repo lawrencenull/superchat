@@ -253,7 +253,7 @@
                 if (model) {
                     return model.toJSON();
                 } else {
-                    return false;
+                    return { name: '[No Name]' };
                 }
             },
             edit: function (user) {
@@ -395,12 +395,10 @@
                 var chatCollection = this.chatCollection = new ChatCollection();
                 var chatMessagesListView = this.chatMessagesListView = new ChatMessagesListView();
                 chatMessagesListView.on('_chatMessageAdded', function (message) {
-                    t.trigger('_chatMessageAdded', message);
-                    //t.chatCollection.add({message:message});
+                    t.trigger('_chatMessageAdded', {message:message});
                 });
                 chatCollection.on('add', function (message) {
                     t.chatMessagesListView.add( message.toJSON() );
-                    t.trigger('_chatMessageAdded', message.toJSON() );
                 });
                 chatMessagesListView.on('_requestNotificationsPermission', function () {
                     t.requestNotificationsPermission();
@@ -542,8 +540,9 @@
                 });
 
                 chatController.on('_chatMessageAdded', function (message) {
-                    if (!message.user) {
-                        message.user = socket.socket.sessionid;
+                    if (!message.user || (message.user && message.user.id !== socket.socket.sessionid) ) {
+                        message.user = usersController.get(socket.socket.sessionid);
+                        console.log('sending to server',message);
                         socket.emit('chatMessageAdded', message);
                         message.self = true;
                         chatController.add(message);
@@ -553,15 +552,9 @@
                 });
 
                 this.on('newMessage', function (message) {
-
-                    console.log(message);
-
-                    if (message.user !== socket.socket.sessionid) {
-                        console.log('there was a new message from the server! we will accept it.');
-                        message.user = usersController.get(message.user);
+                    // from server
+                    if (message.user && message.user.id !== socket.socket.sessionid) {
                         chatController.add(message);
-                    } else {
-                        console.log('there was a new message from the server but we will ignore it');
                     }
                 });
 
