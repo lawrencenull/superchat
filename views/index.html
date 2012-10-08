@@ -151,6 +151,11 @@
 
         Backbone.Controller = Backbone.View;
 
+        Backbone.Collection.prototype.update = function (model, params) {
+            var t = this;
+            this.where({id:model.id})[0].edit(model, params);
+        };
+
         Backbone.Model.prototype.update = function(model, params){  
             var t = this;
             // update or add all new values
@@ -165,7 +170,7 @@
                     }
                 }); 
             }
-            this.trigger('update');      
+            this.trigger('update', model);      
         };
 
         var UserModel = Backbone.Model.extend({
