@@ -143,10 +143,10 @@ appDraw.init({
 var AppController = Backbone.Model.extend({
     initialize: function () {
         var t = this;
-        var filesController = new FilesController();
-        var usersController = new UsersController();
-        var chatController = new ChatController();
-        var drawController = new DrawController();
+        var filesController = this.filesController =new FilesController();
+        var usersController = this.usersController = new UsersController();
+        var chatController = this.chatController = new ChatController();
+        var drawController = this.drawController = new DrawController();
 
         // file listeners
         filesController.on('_newFile', function (file) {
