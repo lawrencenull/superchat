@@ -153,116 +153,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js"></script>
 
 
-        <script>
-        (function ($) {
-            var LineModel = Backbone.Model.extend({
-                defaults: {
-                    coordinates: [{'x':null,'y':null}]
-                },
-                initialize: function(){
-                    if (this.get('id')) {
-
-                    }
-                }
-            });
-            var LineCollection = Backbone.Collection.extend({
-                model: LineModel
-            });
-            var LineView = Backbone.View.extend({
-                el:"#main",
-                events :{
-                    'dragstart': function(e){
-                        var parentOffset = $(e.target).offset();
-                        var posX = e.pageX - parentOffset.left;
-                        var posY = e.pageY - parentOffset.top;
-                        var lineModel = new LineModel({coordinates:[{'x':posX,'y':posY}]});
-                        lineCollection.add(lineModel);
-                        console.log('new line model!', lineModel);
-                        console.log('line collection!', lineCollection.length, lineCollection);
-                    },
-                    'drag': function(e){
-                        var parentOffset = $(e.target).offset();
-                        var posX = e.pageX - parentOffset.left;
-                        var posY = e.pageY - parentOffset.top;
-                        this.trigger('_newPointsAdded', posX, posY);
-                        
-                    }
-                },
-                render : function(){
-                    var svg = d3.select("#main");
-                    //console.log('beep!', lineCollection);
-                    
-                    _.each(lineCollection.models, function(obj){
-
-                        var d3line2 = d3.svg.line()
-                            .x(function(d){return d.x;})
-                            .y(function(d){return d.y;})
-                            .interpolate("cardinal");
-
-                        svg.append("svg:path")
-                            .attr("d", d3line2(obj.attributes.coordinates))
-                            .attr("fill", "transparent")
-                            .attr("stroke", "#aaa")
-                            .attr("stroke-width", 7);
-                    });
-                }
-            });
-            var LineController = Backbone.View.extend({
-                initialize : function(){
-                    
-                    var lineView = new LineView();
-                    var that = this;
-       
-                    lineView.on('_newPointsAdded', function(x, y){
-                        console.log('line collection', lineCollection);
-                        var currentLine = lineCollection.at(lineCollection.length - 1);
-                        var coordinates = currentLine.get('coordinates');
-                        var lastPoint = _.last(coordinates);
-                        
-                        if (!that.isWithinThreshold(x, y, lastPoint)){
-                            coordinates.push({'x': x, 'y' : y});
-                            socket.emit('newLineCoordinate', coordinates);
-                            currentLine.set('coordinates', coordinates);
-                            currentLine.trigger('change:coordinates', currentLine);
-                            //console.log('current line', currentLine);
-                        }
-                    });
-                    lineCollection.on('change:coordinates', function(model){
-                        lineView.render();
-                    });
-
-                    lineCollection.on('add', function (model) {
-                        socket.emit('newLine', model.toJSON() );
-                        //lineView.render();
-                    });
-                    /*lineCollection.on('change:coordinates', function(model){
-                        console.log('change', model.toJSON());
-                        socket.emit('newLineCoordinate', model.toJSON());
-                        //lineView.render();
-                    });*/
-                },
-                isWithinThreshold : function(posX, posY, lastPoint){
-                    var threshold = 10;
-
-                    if ((posX < lastPoint[0]+threshold && posX > lastPoint[0]-threshold) || (posY < lastPoint[1]+threshold && posY > lastPoint[1]-threshold))
-                    {
-                        return true;
-                    }
-                    else{
-                        return false;
-                    }
-                }
-                // add : function(model){
-                //     lineCollection.add(model);
-                // }
-            });
-
-            lineCollection = new LineCollection();
-            var lineController = new LineController();
-                
-        })(jQuery);
-
-    </script>
+        
 
 
     <script>
@@ -781,10 +672,142 @@
             appController.trigger('chatMessageUpdated', data);
         });
 
-        socket.on( '_newLineCoordinate', function (data) {
+        socket.on( '_modelUpdate', function (data) {
             console.log('NEW LINE COORDINATE');
             lineController.add(data);
         });
+
+    </script>
+
+
+
+
+
+
+    <script>
+        (function ($) {
+            var LineModel = Backbone.Model.extend({
+                defaults: {
+                    coordinates: [{'x':null,'y':null}]
+                },
+                initialize: function(){
+                    if (this.get('id')) {
+
+                    }
+                }
+            });
+            var LineCollection = Backbone.Collection.extend({
+                model: LineModel
+            });
+            var LineView = Backbone.View.extend({
+                offset: $('#main').offset(),
+                el:     "#main",
+                events :{
+                    'dragstart': function(e){
+                        var posX = e.pageX - this.offset.left,
+                            posY = e.pageY - this.offset.top - 100,
+                            lineModel = new LineModel({coordinates:[{'x':posX,'y':posY}]});
+                        lineCollection.add(lineModel);
+                        console.log('new line model!', lineModel);
+                        console.log('line collection!', lineCollection.length, lineCollection);
+                    },
+                    'drag': function(e){
+                        // var parentOffset = $(e.target).offset();
+                        var coordinate = {
+                            x : e.pageX - this.offset.left,
+                            y : e.pageY - this.offset.top - 100
+                        }
+                        this.trigger('_newPointsAdded', coordinate);                       
+                    }
+                },
+                renderCollection : function(){
+                    var svg = d3.select("#main");
+                    //console.log('beep!', lineCollection);
+                    
+                    _.each(lineCollection.models, function(obj){
+
+                        var d3line2 = d3.svg.line()
+                            .x(function(d){return d.x;})
+                            .y(function(d){return d.y;})
+                            .interpolate("cardinal");
+
+                        svg.append("svg:path")
+                            .attr("d", d3line2(obj.attributes.coordinates))
+                            .attr("fill", "transparent")
+                            .attr("stroke", "#aaa")
+                            .attr("stroke-width", 7);
+                    });
+                },
+                renderModel : function(model){
+                    var svg = d3.select("#main");
+
+                    var d3line2 = d3.svg.line()
+                            .x(function(d){return d.x;})
+                            .y(function(d){return d.y;})
+                            .interpolate("cardinal");
+
+                        svg.append("svg:path")
+                            .attr("d", d3line2(model.attributes.coordinates))
+                            .attr("fill", "transparent")
+                            .attr("stroke", "#aaa")
+                            .attr("stroke-width", 7);
+                }
+            });
+            var LineController = Backbone.View.extend({
+                initialize : function(){
+                    
+                    var lineView = new LineView();
+                    var that = this;
+       
+                    lineView.on('_newPointsAdded', function(newCoordinate){
+                        console.log('line collection', lineCollection);
+                        var currentLineId = lineCollection.length - 1,
+                            currentLine = lineCollection.at(currentLineId),
+                            coordinates = currentLine.get('coordinates'),
+                            lastCoordinate = _.last(coordinates);
+                        
+                        if (!that.isWithinThreshold(newCoordinate, lastCoordinate)){
+                            coordinates.push({
+                                'x': newCoordinate.x, 
+                                'y' : newCoordinate.y
+                            });
+                            currentLine.set('coordinates', coordinates);
+                            socket.emit('modelUpdate', currentLine, currentLineId);
+                            currentLine.trigger('change:coordinates', currentLine);
+                            //console.log('current line', currentLine);
+                        }
+                    });
+                    lineCollection.on('change:coordinates', function(model){                     
+                        lineView.renderModel(model);
+                    });
+
+                    lineCollection.on('add', function (model) {
+                        //socket.emit('newLine', model.toJSON() );
+                        //lineView.render();
+                    });
+                    /*lineCollection.on('change:coordinates', function(model){
+                        console.log('change', model.toJSON());
+                        socket.emit('newLineCoordinate', model.toJSON());
+                        //lineView.render();
+                    });*/
+                },
+                isWithinThreshold : function(newCoordinate, lastCoordinate){
+                    var threshold = 2;
+
+                    if ((newCoordinate.x < lastCoordinate.x+threshold && newCoordinate.x > lastCoordinate.x-threshold) || (newCoordinate.y < lastCoordinate.y+threshold && newCoordinate.y > lastCoordinate.y-threshold))
+                    {
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+            });
+            //offset = $('#main').offset();
+            lineCollection = new LineCollection();
+            var lineController = new LineController();
+                
+        })(jQuery);
 
     </script>
 </body>
