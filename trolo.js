@@ -19,7 +19,7 @@ var choices = new Choices(null,null,'#');
 
 //tropo.record(null, null, null, true, choices, say, "audio/mp3", 7.0, 140.0, null, null, "recording", null, transcription, "ftp://mcpuck:Agent106!@ftp.pickpuck.com/pickpuck.com/recording.mp3");
      
-tropo.record(3, false, null, choices, "audio/wav", 5, 120, null, null, "recording", null, say, 5, transcription, "ftp://mcpuck:Agent106!@ftp.pickpuck.com/pickpuck.com/recording.mp3");
+tropo.record(3, false, null, choices, "audio/wav", 5, 120, null, null, "recording", null, say); , 5, null, "ftp://mcpuck:Agent106!@ftp.pickpuck.com/pickpuck.com/sandbox/iostudio-whiteboard/recording.mp3");
 
 response.end(TropoJSON(tropo));
 
