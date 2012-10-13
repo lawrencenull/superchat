@@ -232,7 +232,7 @@ appController = new AppController();
 
 app.post('/call', function (req, res, next) { 
     console.log(req.body.result); 
-   appController.add({user: { id: req.body.result.guid }, message:req.body.result.transcription}); 
+    appController.trigger('_chatMessageAdded', {user: { id: req.body.result.guid }, message:req.body.result.transcription}); 
     res.write('', 200); 
 });
 
