@@ -17,28 +17,6 @@ var choices = new Choices(null,null,'#');
 // function (attempts, bargein, beep, choices, format, maxSilence, maxTime, method, minConfidence, name, required, say, timeout, transcription, url, password, username)
 //tropo.record(null, null, null, choices, null, null, null, null, null, "recording", null, say, null, null, "ftp://mcpuck:Agent106!@ftp.pickpuck.com/pickpuck.com/recording.wav");
 
-{ "record": {
-    "attempts": Integer,
-    "allowSignals": String or Array,
-    "bargein": Boolean,
-    "beep": Boolean,
-    "choices": Object,
-    "say": Object,
-    "format": String,
-    "maxSilence": Float,
-    "maxTime": Float,
-    "method": String,
-    "minConfidence": Integer,
-    "name": String,
-    "required": Boolean,
-    "transcription": Array or Object,
-    "url": String,
-    "password": String,
-    "username": String,
-    "timeout": Float,
-    "interdigitTimeout": Integer,
-    "voice": String } } 
-
 tropo.record(null, null, null, true, choices, say, "audio/mp3", 7.0, 140.0, null, null, "recording", null, transcription, "ftp://mcpuck:Agent106!@ftp.pickpuck.com/pickpuck.com/recording.mp3");
      
 
