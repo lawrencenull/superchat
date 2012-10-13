@@ -12,7 +12,7 @@ var express = require('express'),
     _ = require('underscore'),
     Backbone = require('backbone'),
     fs = require('fs'),
-    tropo = require('tropo-webapi'),
+    tropo_webapi = require('tropo-webapi'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
     appChat = require('./server/chat'),
@@ -63,9 +63,28 @@ app.configure('development', function () {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
-app.post('/tropo', function (req, res, next) {
+app.post('/call', function (req, res, next) {
     console.log(req.body);
-})
+    res.write('', 200);
+});
+
+app.post('/tropo', function (req,res,next) {
+    var tropo = new TropoWebAPI();
+//tropo.say("http://www.pickpuck.com/music.mp3");
+var transcription = {"id":"1234", "url":"http://54.243.182.246:3000/call"};
+var say = new Say("Hello, how are you?");
+var choices = new Choices(null,null,'#')
+
+tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+
+res.end(TropoJSON(tropo));
+
+});
+
+
+
+
+
 
 http.createServer(app)
     .listen(app.get('port'), function () {

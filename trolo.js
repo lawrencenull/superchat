@@ -6,7 +6,7 @@ var server = http.createServer(function (request, response) {
     var tropo = new TropoWebAPI();
 
 // tropo.say("http://www.pickpuck.com/music.mp3");
-var transcription = {"id":"1234", "url":"mailto:michaelcpuckett@gmail.com"}; 
+var transcription = {"id":"1234", "url":"http://54.243.182.246:3000/tropo"}; 
 var say = new Say("Hello, how are you?");
 var choices = new Choices(null,null,'#');
 

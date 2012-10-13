@@ -1,0 +1,3 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/bin/npm', 'install', 'forever' ]
+info using npm@1.1.4
