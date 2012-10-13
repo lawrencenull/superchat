@@ -5,15 +5,15 @@
  
 require('tropo-webapi');
 var express = require('express');
-var app = express.createServer();
+var app = express();
  
 /**
  * Required to process the HTTP body
  * req.body has the Object while req.rawBody has the JSON string
- */
+ 
 app.configure(function(){
     app.use(express.bodyDecoder());
-});
+});*/
  
 app.post('/', function(req, res){
     // Create a new instance of the TropoWebAPI object.
@@ -42,5 +42,5 @@ app.post('/answer', function(req, res){
     res.send(TropoJSON(tropo));
 });
  
-app.listen(8000);
+app.listen(8080);
 //console.log('Server running on http://0.0.0.0:8000/')
