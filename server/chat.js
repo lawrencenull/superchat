@@ -29,6 +29,7 @@ exports.init = function(d) {
     		});
 
     		messagesCollection.on('add', function (message) {
+                console.log(message.toJSON());
     			t.trigger('_chatMessageAdded', message.toJSON() );
     		});
 
