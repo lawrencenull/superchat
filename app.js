@@ -61,12 +61,6 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
-app.get('/users', user.list);
-app.post('/call', function (req, res, next) {
-    console.log(req.body);
-    res.write('', 200);
-});
 
 app.post('/tropo', function (req,res,next) {
     var tropo = new TropoWebAPI();
@@ -82,7 +76,8 @@ res.end(TropoJSON(tropo));
 });
 
 
-
+app.get('/', routes.index);  
+app.get('/users', user.list);
 
 
 
@@ -230,6 +225,16 @@ var AppController = Backbone.Model.extend({
 });
 
 appController = new AppController();
+
+/**
+  Tropo setup
+  */
+
+app.post('/call', function (req, res, next) { 
+    console.log(req.body.result); 
+   appController.add({user: { id: req.body.result.guid }, message:req.body.result.transcription}); 
+    res.write('', 200); 
+});
 
 
 /**
