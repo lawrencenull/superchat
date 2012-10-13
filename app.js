@@ -12,6 +12,7 @@ var express = require('express'),
     _ = require('underscore'),
     Backbone = require('backbone'),
     fs = require('fs'),
+    tropo = require('tropo-webapi'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
     appChat = require('./server/chat'),
@@ -67,6 +68,12 @@ http.createServer(app)
     .listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
+
+/*http.createServer(function (req,res) {
+    tropo.say('Hello world');
+    res.writeHead(200, {'Content-Type': 'application/json'}); 
+    res.end(tropowebapi.TropoJSON(tropo));
+}).listen(13188);*/
 
 
 /**
