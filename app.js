@@ -231,7 +231,7 @@ app.post('/call', function (req, res, next) {
     console.log('user', req.body.result.identifier);
     var user = appController.usersController.usersCollection.where({id:req.body.result.identifier});
     if (user.length > 0) {
-        user = user.[0].toJSON();
+        user = user[0].toJSON();
     } else {
         user = { id: req.body.result.identifier };
     }
