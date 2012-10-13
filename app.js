@@ -63,6 +63,9 @@ app.configure('development', function () {
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.post('/tropo', function (req, res, next) {
+    console.log(req.body);
+})
 
 http.createServer(app)
     .listen(app.get('port'), function () {
