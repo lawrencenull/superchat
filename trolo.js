@@ -42,5 +42,5 @@ app.post('/answer', function(req, res){
     res.send(TropoJSON(tropo));
 });
  
-app.listen(8080);
+app.listen(3000);
 //console.log('Server running on http://0.0.0.0:8000/')
