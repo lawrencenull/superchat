@@ -32,6 +32,45 @@
 <body>
     <div id="dashboard">Drag files here.</div>
     <div id="files-list"></div>
+    <script src="http://d3js.org/d3.v2.js"></script>
+    <svg id="main"></svg>
+
+    <script type="text/javascript">
+        var svg = d3.select("#main");
+    var line = d3.svg.line()
+    .x(function(d) { return d[0]; })
+    .y(function(d) { return d[1] + 200; })
+    .interpolate('cardinal');
+    function init(){
+        randData = [];
+        for (var i = 0; i < 7; i++){
+            randData.push([i*50, Math.random() * 100]);
+        }
+         svg.data([randData])
+            .append("svg:path")
+            .attr("d", line)
+            .attr("fill", "#444")
+            .attr("stroke", "#aaa")
+            .attr("stroke-width", 7);
+        setInterval(refresh, 500);
+    }        
+              
+    function refresh(){
+       //var randData = [];
+        for (var i = 0; i < 1; i++){
+            randData.push([Math.random() * 200, Math.random() * 200]);
+        }
+        
+        svg.data([randData])
+            .select("path")
+            .transition()
+            .duration(500)
+            .attr("d", line);
+    }
+    init();​
+    </script>
+
+
 
     <script id="template-file" type="text/handlebars">
         <li><a href="{{name}}" download="{{data}}">{{name}} ({{author}} at {{timestamp}})</a></li>

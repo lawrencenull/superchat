@@ -14,7 +14,8 @@ var express = require('express'),
     fs = require('fs'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
-    appChat = require('./server/chat');
+    appChat = require('./server/chat'),
+    appDraw = require('./server/draw');
 //, mongodb = require('mongodb');
 
 
@@ -113,6 +114,11 @@ appChat.init({
     Backbone: Backbone
 });
 
+appDraw.init({
+    _: _,
+    Backbone: Backbone
+});
+
 // App
 var AppController = Backbone.Model.extend({
     initialize: function () {
@@ -120,6 +126,7 @@ var AppController = Backbone.Model.extend({
         var filesController = new FilesController();
         var usersController = new UsersController();
         var chatController = new ChatController();
+        var drawController = new DrawController();
 
         // file listeners
         filesController.on('_newFile', function (file) {
@@ -178,6 +185,10 @@ var AppController = Backbone.Model.extend({
             t.notify('chatMessageUpdated', message);
         });
 
+        drawController.on('_lineAdded', function (line) {
+            t.notify('newLineCoordinate', line);
+        });
+
         this.notify('reload');
 
     },
@@ -215,5 +226,8 @@ socket_io.sockets.on('connection', function (socket) {
     });
     socket.on('userUpdated', function (data) {
         appController.trigger('_userUpdated', data);
+    });
+    socket.on('newLineCoordinate', function (data) {
+        appController.trigger('_newLineCoordinate', data);
     });
 });
