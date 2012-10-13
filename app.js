@@ -229,7 +229,13 @@ appController = new AppController();
 app.post('/call', function (req, res, next) { 
     console.log(req.body.result);
     console.log('user', req.body.result.identifier);
-    appController.trigger('_chatMessageAdded', {user: { id: req.body.result.identifier }, message:req.body.result.transcription}); 
+    var user = appController.usersController.usersCollection.where({id:req.body.result.identifier});
+    if (user.length > 0) {
+        user = user.[0].toJSON();
+    } else {
+        user = { id: req.body.result.identifier };
+    }
+    appController.trigger('_chatMessageAdded', {user: user, message:req.body.result.transcription}); 
     res.write('', 200); 
 });
 
