@@ -71,7 +71,7 @@ var choices = new Choices(null,null,'#')
 
 tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-console.log(req);
+console.log(req.body.session.from.id);
 
 res.end(TropoJSON(tropo));
 
