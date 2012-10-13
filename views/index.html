@@ -112,21 +112,38 @@
             });
             var LineController = Backbone.View.extend({
                 initialize : function(){
+                    
                     var lineView = new LineView();
                     var that = this;
        
                     lineView.on('_newPointsAdded', function(x, y){
-
+                        console.log('line collection', lineCollection);
                         var currentLine = lineCollection.at(lineCollection.length - 1);
                         var coordinates = currentLine.get('coordinates');
                         var lastPoint = _.last(coordinates);
                         
                         if (!that.isWithinThreshold(x, y, lastPoint)){
                             coordinates.push({'x': x, 'y' : y});
-                            currentLine.set('coordinates', coordinates);
-                            lineView.render();
+                            socket.emit('newLineCoordinate', coordinates);
+                            //currentLine.set('coordinates', coordinates);
+                            //currentLine.trigger('change:coordinates', currentLine);
+                            //console.log('current line', currentLine);
                         }
                     });
+                    lineCollection.on('change:coordinates', function(model){
+                        //console.log('change', model.toJSON());
+                        //socket.emit('newLineCoordinate', model.toJSON());
+                        //lineView.render();
+                    });
+
+                    lineCollection.on('add', function (model) {
+                        that.lineView.render();
+                    });
+                    /*lineCollection.on('change:coordinates', function(model){
+                        console.log('change', model.toJSON());
+                        socket.emit('newLineCoordinate', model.toJSON());
+                        //lineView.render();
+                    });*/
                 },
                 isWithinThreshold : function(posX, posY, lastPoint){
                     var threshold = 10;
@@ -138,10 +155,13 @@
                     else{
                         return false;
                     }
+                },
+                add : function(model){
+                    lineCollection.add(model);
                 }
             });
 
-            var lineCollection = new LineCollection();
+            lineCollection = new LineCollection();
             var lineController = new LineController();
                 
         })(jQuery);
@@ -345,7 +365,9 @@
         socket.on( '_error', function (error) {
             alert(error);
         });
-
+        socket.on( '_newLineCoordinate', function (data) {
+            lineController.add(data);
+        });
 
     </script>
 </body>
