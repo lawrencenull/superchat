@@ -63,15 +63,17 @@ app.configure('development', function () {
 
 
 app.post('/tropo', function (req,res,next) {
-    var tropo = new TropoWebAPI();
-//tropo.say("http://www.pickpuck.com/music.mp3");
-var transcription = {"id":"1234", "url":"http://54.243.182.246:3000/call"};
+
+var phoneNumber = req.body.session.from.id;
+
+appController.trigger('_userSessionStarted', { id: phoneNumber });
+
+var tropo = new TropoWebAPI();
+var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
 var say = new Say("Hello, how are you?");
 var choices = new Choices(null,null,'#')
 
 tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-
-console.log(req.body.session.from.id);
 
 res.end(TropoJSON(tropo));
 
@@ -81,18 +83,10 @@ res.end(TropoJSON(tropo));
 app.get('/', routes.index);  
 app.get('/users', user.list);
 
-
-
 http.createServer(app)
     .listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
-
-/*http.createServer(function (req,res) {
-    tropo.say('Hello world');
-    res.writeHead(200, {'Content-Type': 'application/json'}); 
-    res.end(tropowebapi.TropoJSON(tropo));
-}).listen(13188);*/
 
 
 /**
@@ -234,7 +228,7 @@ appController = new AppController();
 
 app.post('/call', function (req, res, next) { 
     console.log(req.body.result); 
-    appController.trigger('_chatMessageAdded', {user: { id: req.body.result.guid }, message:req.body.result.transcription}); 
+    appController.trigger('_chatMessageAdded', {user: { id: req.body.result.id }, message:req.body.result.transcription}); 
     res.write('', 200); 
 });
 
