@@ -3,7 +3,7 @@
  * Express must be installed for this sample to work
  */
  
-require('../../lib/tropo-webapi');
+require('tropo-webapi');
 var express = require('express');
 var app = express.createServer();
  
