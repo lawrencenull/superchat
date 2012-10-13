@@ -7,7 +7,7 @@ var server = http.createServer(function (request, response) {
 
 // tropo.say("http://www.pickpuck.com/music.mp3");
 var transcription = {"id":"1234", "url":"mailto:michaelcpuckett@.com"}; 
-var say = tropo.say("Hello, how are you?.", null, null, null, "victor");
+var say = tropo.say("Hello, how are you?");
 var choices = new Choices(null,null,'#');
 
 //var say = tropo.say("Oh my dear friend Bill. How are you?");
