@@ -201,6 +201,8 @@ app.post('/messages', function (req,res) {
     _.each(messagesSinceLastMessage, function (message) {
         console.log('VOICE', tropo_voices[user.locale][3]);
         //value, as, name, required, voice
+
+        console.log(message.user);
         var says = message.get('translations')[user.locale];
         if (user.locale === message.user.locale && message.file) {
             says = 'http://54.243.182.246:3000' + message.file;
