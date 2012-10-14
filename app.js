@@ -355,10 +355,13 @@ app.post('/call', function (req, res) {
     var messagesCollection = appController.chatController.messagesCollection;
     var userMessages = messagesCollection.filter(function (message, index) {
         return message.get('user').id === phoneNumber;
-    });
+    }).toJSON();
 
-    var message = userMessages[userMessages.length-1].toJSON();
+    var message = userMessages[userMessages.length-1];
     message.message = req.body.result.transcription;
+
+    console.log(message);
+    console.log(req.body.result.transcription);
 
     appController.trigger('_chatMessageUpdated', message); 
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
