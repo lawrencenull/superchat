@@ -251,11 +251,7 @@ var AppController = Backbone.Model.extend({
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
             t.message(user.id, 'getAllMessages', chatController.render());
-            if (user.sockets) {
-                usersController.add({id:user.id});
-            } else {
-                usersController.add(user);
-            }
+            usersController.add(user);
         });
         this.on('_userSessionEnded', function (user) {
             usersController.remove(user);
@@ -321,10 +317,10 @@ app.post('/call', function (req, res) {
 
 
 socket_io.sockets.on('connection', function (socket) {
-    appController.trigger('_userSessionStarted', socket);
+    appController.trigger('_userSessionStarted', {id:socket.id});
 
     socket.on('disconnect', function () {
-        appController.trigger('_userSessionEnded', socket);
+        appController.trigger('_userSessionEnded', {id:socket.id});
     });
     socket.on('fileAdded', function (data) {
         console.log(data);
