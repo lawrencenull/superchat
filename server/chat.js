@@ -29,6 +29,7 @@ exports.init = function(d) {
     		});
 
     		messagesCollection.on('add', function (message) {
+                console.log(message.toJSON());
     			t.trigger('_chatMessageAdded', message.toJSON() );
     		});
 
@@ -41,12 +42,16 @@ exports.init = function(d) {
             return this.messagesCollection.toJSON();
         },
         update: function (data, params) {
+            var t = this;
             if (params && params.type === 'user') {
                 var messageModels = this.messagesCollection.each(function (model) {
                     if (model.toJSON().user.id === data.id) {
                         model.set('user', data);
                     }
                 });
+            } else if (data.id) {
+                var messageModel = t.messagesCollection.get(data.id);
+                messageModel.update(data);
             }
         }
     });
