@@ -75,7 +75,7 @@ app.post('/tropo', function (req,res,next) {
         }
     });
 
-    console.log(tropo);
+    console.log(TropoJSON(tropo));
 
     // on call end, remove phone user from user collection
     tropo.on('hangup', function() {
