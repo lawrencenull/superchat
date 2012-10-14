@@ -74,7 +74,7 @@ exports.init = function(d) {
                 var messageModel = t.messagesCollection.get(data.id);
 
                 data.translations = {};
-                data.translations[message.user.locale] = data.message;
+                data.translations[data.user.locale] = data.message;
 
                 var newLocale;
 
