@@ -345,13 +345,22 @@ appController = new AppController();
 app.post('/call', function (req, res) { 
     var tropo = new TropoWebAPI();
     var phoneNumber = req.body.result.identifier;
-    var user = appController.usersController.usersCollection.get(phoneNumber);
+    /*var user = appController.usersController.usersCollection.get(phoneNumber);
     if (user.length > 0) {
         user = user[0].toJSON();
     } else {
         user = { id: phoneNumber };
-    }
-    appController.trigger('_chatMessageAdded', {user: user, message:req.body.result.transcription}); 
+    }*/
+
+    var messagesCollection = appController.chatController.messagesCollection;
+    var userMessages = messagesCollection.filter(function (message, index) {
+        return message.get('user').id === phoneNumber;
+    });
+
+    var message = userMessages[userMessages.length-1].toJSON();
+    message.message = req.body.result.transcription;
+
+    appController.trigger('_chatMessageUpdated', message); 
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
