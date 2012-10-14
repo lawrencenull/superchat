@@ -62,7 +62,7 @@ app.configure('development', function () {
 });
 
 
-app.post('/tropo', function (req,res,next) {
+/*app.post('/tropo', function (req,res,next) {
     var tropo = new TropoWebAPI();
 
     console.log(tropo_webapi.TropoJSON(tropo));
@@ -103,6 +103,35 @@ app.post('/route', function (req,res) {
     console.log(answer);
 
     res.send(TropoJSON(tropo));
+});*/
+
+app.post('/tropo', function(req, res){
+     
+    var tropo = new TropoWebAPI();
+     
+    var say = new Say("What's your favorite color?  Choose from red, blue or green.");
+    var choices = new Choices("red, blue, green");
+ 
+    // (choices, attempts, bargein, minConfidence, name, recognizer, required, say, timeout, voice);
+     
+    tropo.ask(choices, null, null, null, "color", null, null, say, 60, null);
+     
+    tropo.on("continue", null, "/continue", true);
+     
+    res.send(TropoJSON(tropo));
+     
+});
+ 
+app.post('/continue', function(req, res){
+     
+    var tropo = new TropoWebAPI();
+ 
+    var answer = req.body['result']['actions']['value'];
+     
+    tropo.say("You said " + answer);
+         
+    res.send(TropoJSON(tropo));
+ 
 });
 
 
