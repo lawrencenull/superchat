@@ -1,4 +1,5 @@
 @charset "UTF-8";
+@import url(http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope);
 /* Requires: normalize.css */
 /* Global Reset & Standards ---------------------- */
 /* line 5, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/common/_globals.scss */
@@ -2638,7 +2639,7 @@ ul.flyout li.active a, .nav-bar li ul li.active a {
 .top-bar > ul .name h1 a {
   font-weight: bold;
   padding: 0 22.5px;
-  font-size: 17px !important;
+  font-size: ms(1) !important;
 }
 /* line 36, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_topbar.scss */
 .top-bar > ul .name img {
@@ -3325,7 +3326,7 @@ div.orbit-wrapper span.rotator {
   position: absolute;
   top: 0;
   left: -20px;
-  background: url('/images/foundation/orbit/rotator-black.png?1350242030') no-repeat;
+  background: url('/public/images/foundation/orbit/rotator-black.png?1350242950') no-repeat;
   z-index: 3;
 }
 
@@ -3350,7 +3351,7 @@ div.orbit-wrapper span.rotator.move {
 div.orbit-wrapper span.mask.move {
   width: 40px;
   left: 0;
-  background: url('/images/foundation/orbit/timer-black.png?1350242030') repeat 0 0;
+  background: url('/public/images/foundation/orbit/timer-black.png?1350242950') repeat 0 0;
 }
 
 /* line 82, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
@@ -3361,14 +3362,14 @@ div.orbit-wrapper span.pause {
   position: absolute;
   top: 0;
   left: 0;
-  background: url('/images/foundation/orbit/pause-black.png?1350242030') no-repeat;
+  background: url('/public/images/foundation/orbit/pause-black.png?1350242950') no-repeat;
   z-index: 4;
   opacity: 0;
 }
 
 /* line 93, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
 div.orbit-wrapper span.pause.active {
-  background: url('/images/foundation/orbit/pause-black.png?1350242030') no-repeat 0 -40px;
+  background: url('/public/images/foundation/orbit/pause-black.png?1350242950') no-repeat 0 -40px;
 }
 
 /* line 97, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
@@ -3420,25 +3421,25 @@ div.orbit-wrapper div.slider-nav span {
 
 /* line 134, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
 div.orbit-wrapper div.slider-nav span.right {
-  background: url('/images/foundation/orbit/right-arrow.png?1350242030');
+  background: url('/public/images/foundation/orbit/right-arrow.png?1350242950');
   background-size: 100%;
   right: 0;
 }
 
 /* line 139, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
 div.orbit-wrapper div.slider-nav span.left {
-  background: url('/images/foundation/orbit/left-arrow.png?1350242030');
+  background: url('/public/images/foundation/orbit/left-arrow.png?1350242950');
   background-size: 100%;
   left: 0;
 }
 
 /* line 145, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
 .lt-ie9 div.orbit-wrapper div.slider-nav span.right {
-  background: url('/images/foundation/orbit/right-arrow-small.png?1350242030');
+  background: url('/public/images/foundation/orbit/right-arrow-small.png?1350242950');
 }
 /* line 146, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/components/modules/_orbit.scss */
 .lt-ie9 div.orbit-wrapper div.slider-nav span.left {
-  background: url('/images/foundation/orbit/left-arrow-small.png?1350242030');
+  background: url('/public/images/foundation/orbit/left-arrow-small.png?1350242950');
 }
 
 /* Bullet Nav ---------------------- */
@@ -3460,7 +3461,7 @@ ul.orbit-bullets li {
   cursor: pointer;
   color: #999;
   text-indent: -9999px;
-  background: url('/images/foundation/orbit/bullets.jpg?1350242030') no-repeat 4px 0;
+  background: url('/public/images/foundation/orbit/bullets.jpg?1350242950') no-repeat 4px 0;
   width: 13px;
   height: 12px;
   overflow: hidden;
@@ -3517,7 +3518,7 @@ ul.orbit-bullets li {
   cursor: pointer;
   color: #999;
   text-indent: -9999px;
-  background: url('/images/foundation/orbit/bullets.jpg?1350242030') no-repeat 4px 0;
+  background: url('/public/images/foundation/orbit/bullets.jpg?1350242950') no-repeat 4px 0;
   width: 13px;
   height: 12px;
   overflow: hidden;
@@ -4968,4 +4969,193 @@ div.progress.round .meter {
   -ms-border-radius: 1000px;
   -o-border-radius: 1000px;
   border-radius: 1000px;
+}
+
+/* line 5, ../sass/project.scss */
+body {
+  padding-top: 45px;
+}
+
+/* line 15, ../sass/project.scss */
+nav.top-bar ul ul li.name h1 a {
+  font-family: 'Annie Use Your Telescope', cursive;
+  font-size: 40px;
+}
+/* line 19, ../sass/project.scss */
+nav.top-bar ul ul li.name h1 a:hover {
+  color: white;
+}
+
+/* line 33, ../sass/project.scss */
+h1, h2, h3 {
+  color: #b3b3b3;
+  font-family: 'Annie Use Your Telescope', cursive;
+}
+
+/* line 37, ../sass/project.scss */
+.hide {
+  display: none !important;
+}
+
+/* line 40, ../sass/project.scss */
+.show {
+  display: none !important;
+  width: 100%;
+  background-color: #555;
+}
+
+/* line 45, ../sass/project.scss */
+#dropzone {
+  border: 4px dashed red;
+}
+
+/* line 48, ../sass/project.scss */
+.dragover {
+  background-color: orange;
+}
+
+/* line 52, ../sass/project.scss */
+#users-list {
+  margin-bottom: 80px;
+  *zoom: 1;
+  list-style: none;
+}
+/* line 4, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/mixins/_clearfix.scss */
+#users-list:before, #users-list:after {
+  content: "";
+  display: table;
+}
+/* line 5, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/mixins/_clearfix.scss */
+#users-list:after {
+  clear: both;
+}
+
+/* line 57, ../sass/project.scss */
+#users-list li {
+  text-align: left;
+  height: 100px;
+  *zoom: 1;
+}
+/* line 4, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/mixins/_clearfix.scss */
+#users-list li:before, #users-list li:after {
+  content: "";
+  display: table;
+}
+/* line 5, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/mixins/_clearfix.scss */
+#users-list li:after {
+  clear: both;
+}
+
+/* line 62, ../sass/project.scss */
+#chat-messages-list img {
+  float: left;
+  height: 100%;
+  margin-right: 10px;
+}
+
+/* line 67, ../sass/project.scss */
+#users-list img {
+  float: left;
+  margin-right: 10px;
+}
+
+/* line 71, ../sass/project.scss */
+#users-list .self .name {
+  font-weight: bold;
+}
+
+/* line 74, ../sass/project.scss */
+#users-list .self .name:after {
+  content: " Thats you!";
+  font-weight: normal;
+}
+
+/* line 78, ../sass/project.scss */
+#users-list .self img {
+  cursor: pointer;
+}
+
+/* line 81, ../sass/project.scss */
+#users-list .self img:hover {
+  opacity: .7;
+}
+
+/* line 85, ../sass/project.scss */
+#chat .chat-box {
+  position: fixed;
+  padding: 5px;
+  background-color: #e6e6e6;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+}
+/* line 92, ../sass/project.scss */
+#chat .chat-box input[type="text"] {
+  margin: 0px;
+  color: black;
+}
+
+/* line 98, ../sass/project.scss */
+#chat-messages-list {
+  border: 1px solid #999;
+  height: 400px;
+  overflow: scroll;
+  margin: 1em 0;
+  list-style-type: none;
+  text-align: left;
+  width: 99.9%;
+}
+
+/* line 107, ../sass/project.scss */
+#chat-messages-list > li {
+  background-color: #deffe0;
+  height: 100px;
+  padding: 5px;
+}
+
+/* line 112, ../sass/project.scss */
+#chat-messages-list > li:nth-child(odd) {
+  background-color: #a9ffad;
+}
+
+/* line 115, ../sass/project.scss */
+#chat-messages-list > li.self {
+  background-color: yellow;
+}
+
+/* line 118, ../sass/project.scss */
+#chat-messages-list > li:nth-child(odd).self {
+  background-color: #faffd3;
+}
+
+/* line 121, ../sass/project.scss */
+#chat-messages-list > li > .user {
+  font-weight: bold;
+}
+
+/* line 124, ../sass/project.scss */
+#chat-messages-list > li > .user:after {
+  content: ':';
+}
+
+/* line 128, ../sass/project.scss */
+#webcam,
+#webcam-feed {
+  margin-top: 50px;
+  display: none;
+}
+
+/* line 132, ../sass/project.scss */
+#webcam.open {
+  display: block;
+}
+
+/* line 135, ../sass/project.scss */
+#snapshot {
+  display: block;
+}
+
+/* line 138, ../sass/project.scss */
+ul#files-list {
+  list-style-type: none;
 }
