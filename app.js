@@ -359,7 +359,7 @@ app.post('/call', function (req, res) {
 
     console.log(userMessagesCollection);
 
-    var message = userMessagesCollection.last().toJSON();
+    var message = userMessagesCollection[0].last().toJSON();
     message.message = req.body.result.transcription;
 
     console.log(message);
