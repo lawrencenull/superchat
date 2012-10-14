@@ -356,17 +356,18 @@ appController = new AppController();
   Tropo setup
   */
 
-app.post('/call', function (req, res, next) { 
-    console.log(req.body.result);
-    console.log('user', req.body.result.identifier);
-    var user = appController.usersController.usersCollection.where({id:req.body.result.identifier});
+app.post('/call', function (req, res) { 
+    var phoneNumber = req.body.result.identifier;
+    var user = appController.usersController.usersCollection.get(phoneNumber);
     if (user.length > 0) {
         user = user[0].toJSON();
     } else {
-        user = { id: req.body.result.identifier };
+        user = { id: phoneNumber };
     }
     appController.trigger('_chatMessageAdded', {user: user, message:req.body.result.transcription}); 
-    res.write('', 200); 
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+     
+    res.send(TropoJSON(tropo));
 });
 
 
