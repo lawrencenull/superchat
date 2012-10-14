@@ -186,8 +186,8 @@ app.post('/messages', function (req,res) {
         var messagesCollection = appController.chatController.messagesCollection;
         var length = messagesCollection.length;
         if (messagesCollection.length > 0) {
-            console.log(messagesCollection.at(length).toJSON());
-            tropo.say(messagesCollection.at(length).toJSON().message);
+            console.log(messagesCollection.at(length-1).toJSON());
+            tropo.say(messagesCollection.at(length-1).toJSON().message);
         }
     //}
 
