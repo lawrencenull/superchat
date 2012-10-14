@@ -191,12 +191,12 @@ app.post('/messages', function (req,res) {
     var userModel = appController.usersController.usersCollection.get(phoneNumber);
     var user = userModel.toJSON();
 
-    console.log('user', user);
-
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message) {
         return message.id > user.lastMessage;
     });
+
+    console.log(messagesSinceLastMessage);
 
     messagesSinceLastMessage.each(function (message) {
         console.log('a message since last message', message.toJSON());

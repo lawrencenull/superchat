@@ -8,7 +8,7 @@ exports.init = function(d) {
   var UserModel = Backbone.Model.extend({
     defaults: {
       'name': 'New User',
-      'lastMessage': 0
+      'lastMessage': -1
     },
     initialize: function () {
       if (this.get('name') === this.defaults.name) {
