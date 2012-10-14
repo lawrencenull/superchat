@@ -90,6 +90,7 @@ app.post('/listen', function(req, res){
     var localeDigit = req.body['result']['actions']['value'];
     
     if (localeDigit == 'en' || localeDigit == 'sp') {
+        console.log(localeDigit);
         var locale = 'en';
         if (localeDigit == 2) {
             locale = 'sp';
