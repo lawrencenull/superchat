@@ -83,43 +83,29 @@ app.post('/tropo', function(req, res){
      
 });
 
-app.post('/initialize', function (req, res) {
-    var tropo = new TropoWebAPI();
-
-    var phoneNumber = req.query.id;
-
-    var locale = 'en';
-    var localeDigit = req.body['result']['actions']['value'];
-
-    if (localeDigit == 2) {
-        locale = 'sp';
-    }
-
-    // on call start, add phone user to users collection
-    appController.trigger('_userSessionStarted', {
-        id: phoneNumber,
-        locale: locale,
-        image: {
-            'data': '/images/default-phone-image.gif'
-        }
-    });
-
-    var say = new Say('');
-    var choices = new Choices(null, null, '#');
-
-    tropo.ask(choices, null, null, null, 'pause', null, null, say, 1, null);
-
-
-    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
-    
-    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-
-});
- 
 app.post('/listen', function(req, res){
 
     var tropo = new TropoWebAPI();
     var phoneNumber = req.query.id;
+    var localeDigit = req.body['result']['actions']['value'];
+    
+    if (localeDigit) {
+        var locale = 'en';
+        if (localeDigit == 2) {
+            locale = 'sp';
+        }
+
+        // on call start, add phone user to users collection
+        appController.trigger('_userSessionStarted', {
+            id: phoneNumber,
+            locale: locale,
+            image: {
+                'data': '/images/default-phone-image.gif'
+            }
+        });
+    }
+    
+
     var say = new Say('');
     var choices = new Choices(null, null, '#');
 
