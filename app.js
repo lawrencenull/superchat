@@ -183,7 +183,12 @@ app.post('/messages', function (req,res) {
     var tropo = new TropoWebAPI();
 
     //if (newMessages) {
-        tropo.say('There was a new message blah blah blah blah.');
+        var messagesCollection = appController.chatController.messagesCollection;
+        var length = messagesCollection.length;
+        if (messagesCollection.length > 0) {
+            console.log(messagesCollection.at(length).toJSON());
+            tropo.say(messagesCollection.at(length).toJSON().message);
+        }
     //}
 
     tropo.on('continue', null, '/listen', null);
