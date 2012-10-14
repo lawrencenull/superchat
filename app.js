@@ -370,12 +370,16 @@ appController = new AppController();
 app.post('/call', function (req, res) { 
     var tropo = new TropoWebAPI();
     var phoneNumber = req.body.result.identifier;
+
     /*var user = appController.usersController.usersCollection.get(phoneNumber);
     if (user.length > 0) {
         user = user[0].toJSON();
     } else {
         user = { id: phoneNumber };
     }*/
+
+    var user = appController.usersController.usersCollection.get(phoneNumber).toJSON();
+    console.log('USERS LANGUAGE IS ', locale);
 
     var messagesCollection = appController.chatController.messagesCollection;
     var userMessagesCollection = messagesCollection.filter(function (message, index) {
