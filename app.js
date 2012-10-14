@@ -131,7 +131,16 @@ app.post('/record', function (req,res) {
 });
 
 app.post('/upload', function (req,res) {
-    console.log(req);
+
+    fs.readFile(req.files.filename.path, function (err, data) {
+      // ...
+      var newPath = __dirname + "/recordings/" + req.files.filename.name;
+      console.log(newPath);
+      fs.writeFile(newPath, data, function (err) {
+        res.redirect("back");
+      });
+    });
+
 });
 
 app.post('/messages', function (req,res) {
