@@ -127,7 +127,7 @@ app.post('/tropo', function(req, res){
      
     //tropo.ask(choices, null, null, null, "route", null, null, say, 60, null);
      
-    tropo.on("continue", null, "/listen", true);
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
      
@@ -136,6 +136,10 @@ app.post('/tropo', function(req, res){
 app.post('/listen', function(req, res){
      
     var tropo = new TropoWebAPI();
+
+    var phoneNumber = req.params.id;
+
+    console.log('PHONE NUMBER IS', phoneNumber);
  
     //var answer = req.body['result']['actions']['value'];
      
