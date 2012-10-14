@@ -97,7 +97,7 @@ app.post('/listen', function(req, res){
     
     if (localeDigit && localeDigit === '2') {
         console.log('TWO');
-        var userModel = appController.chatController.messagesCollection.get(phoneNumber)[0];
+        var userModel = appController.chatController.messagesCollection.at(phoneNumber);
         var user = userModel.toJSON();
         user.locale = 'sp';
         appController.trigger('_userUpdated', user);
