@@ -188,7 +188,8 @@ app.post('/messages', function (req,res) {
 
     var phoneNumber = req.query.id;
 
-    var user = appController.usersController.usersCollection.get(phoneNumber).toJSON();
+    var userModel = appController.usersController.usersCollection.get(phoneNumber);
+    var user = userModel.toJSON();
 
     console.log('user', user);
 
@@ -201,6 +202,8 @@ app.post('/messages', function (req,res) {
         console.log('a message since last message', message.toJSON());
         tropo.say(message.get('message'));
     });
+
+    user.set('lastMessage', messagesCollection.length-1);
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
 
