@@ -122,7 +122,7 @@ app.post('/tropo', function(req, res){
      
 });
  
-app.post('/continue', function(req, res){
+app.post('/continue', function(req, res, next){
      
     var tropo = new TropoWebAPI();
  
@@ -130,7 +130,7 @@ app.post('/continue', function(req, res){
      
     console.log(answer);
 
-    app.next('/'+answer);
+    next('/'+answer);
          
     res.send(TropoJSON(tropo));
  
