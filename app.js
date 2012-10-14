@@ -104,6 +104,9 @@ app.post('/initialize', function (req, res) {
         }
     });
 
+    tropo.say('');
+
+
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
     
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
