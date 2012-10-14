@@ -68,7 +68,7 @@ app.post('/tropo', function(req, res){
 
     var phoneNumber = req.body.session.from.id;
 
-    var say = new Say('Press one for English or two for Spanish.');
+    var say = new Say('Press one for English. Or two for Spanish.');
     var choices = new Choices('1,2');
 
     tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
@@ -89,6 +89,7 @@ app.post('/listen', function(req, res){
     var localeDigit = req.body['result']['actions']['value'];
 
     if (localeDigit && (localeDigit === '1' || localeDigit === '2')) {
+        console.log('CREATE');
         var locale = 'en';
         if (localeDigit === '2') {
             locale = 'es'
@@ -102,7 +103,7 @@ app.post('/listen', function(req, res){
             }
         });
 
-        tropo.say('Locale set to' + locale );
+        tropo.say('Locale set to' + locale + '. Press pound to record a message at any time.' );
     }
 
     var say = new Say('');
