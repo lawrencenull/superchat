@@ -196,13 +196,15 @@ app.post('/messages', function (req,res) {
         return (index > user.lastMessage) && ( message.get('user').id !== phoneNumber );
     });
 
-    _.each(messagesSinceLastMessage, function (message) {
+    _.each(messagesSinceLastMessage, function (messageModel) {
         //value, as, name, required, voice
+
+        var message = messageModel.toJSON();
 
         console.log('THIS IS HTE MESSAGE', message);
 
         var says = message.get('translations')[user.locale];
-        
+
         if (user.locale === message.user.locale && message.file) {
             says = 'http://54.243.182.246:3000' + message.file;
         }
