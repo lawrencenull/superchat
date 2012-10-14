@@ -50,7 +50,7 @@ exports.init = function(d) {
                     }
                 });
             } else if (data.id) {
-                var messageModel = t.messagesCollection.get(id);
+                var messageModel = t.messagesCollection.get(data.id);
                 messageModel.update(data);
             }
         }
