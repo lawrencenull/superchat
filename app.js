@@ -76,7 +76,7 @@ app.post('/tropo', function (req,res,next) {
     });
 
     // on call end, remove phone user from user collection
-    tropo.on("hangup", function () {
+    req.addListener('end', function() {
         console.log('HANGUP');
 
         appController.trigger('_userSessionEnded', {
