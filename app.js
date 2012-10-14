@@ -111,6 +111,8 @@ app.post('/listen', function(req, res){
  
 });
 
+
+
 app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
 
@@ -119,7 +121,7 @@ app.post('/record', function (req,res) {
     var say = new Say('Press pound after recording your message.');
 
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
-    var choices = new Choices(null,null,'#')
+    var choices = new Choices(null,null,'#');
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
     tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", null, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
 
@@ -144,7 +146,7 @@ app.post('/upload', function (req,res) {
             user: {
                 id: phoneNumber
             },
-            message: '(New Message)',
+            message: '(Transcribing audio...)',
             file: '/recordings/'+fileName
         });
 
