@@ -170,7 +170,7 @@ app.post('/upload', function (req,res) {
         appController.trigger('_chatMessageAdded', {
             user: user,
             message: '(Transcribing audio...)',
-            translations = {},
+            translations: {},
             file: '/recordings/'+fileName
         });
 
