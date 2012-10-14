@@ -29,7 +29,6 @@ exports.init = function(d) {
     		var messagesCollection = this.messagesCollection = new MessagesCollection();
     		
     		this.on('messageAdded', function (message) {
-                console.log(translate);
 
                 message.translations = {};
                 message.translations[message.user.locale] = message.message;
@@ -71,6 +70,7 @@ exports.init = function(d) {
                     }
                 });
             } else if (data.id) {
+                console.log('UPDATE CHAT CONTROLLER', data);
                 var messageModel = t.messagesCollection.get(data.id);
                 messageModel.update(data);
             }
