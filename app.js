@@ -77,21 +77,31 @@ app.post('/tropo', function (req,res,next) {
         }
     });
 
+    // greet
+    var say = new Say("Record or listen?");
+    
+    tropo.ask( { "value": "record, listen" }, null, 3, null, null, null, 'route', true, say);
+
+    tropo.on('continue', null, '/route', true);
+
     // record user text
-    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
-    var say = new Say("Hello, how are you?");
-    var choices = new Choices(null,null,'#')
-    tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+    // var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+    // var choices = new Choices(null,null,'#')
+    // tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-    tropo.on("incomplete", null, "/hangup", true);
-    tropo.on("hangup", null, "/hangup", true);
-    tropo.on("error", null, "/hangup", true);
 
-    res.end(TropoJSON(tropo));
+
+    res.send(TropoJSON(tropo));
 });
 
-app.post('/hangup', function(req, res){
-    console.log("The user hungup or the call went to voicemail.");
+app.post('/route', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    var answer = req.body.result.actions.value;
+
+    console.log(answer);
+
+    res.send(TropoJSON(tropo));
 });
 
 
