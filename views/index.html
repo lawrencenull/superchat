@@ -72,7 +72,7 @@
     <script id="template-file" type="text/handlebars">
         <li id="file-{{id}}" data-id="{{id}}">   
             <a href="/files/{{name}}" download="{{name}}">
-                <div class ="panel">
+                <div>
                     {{name}} ({{user}} at {{timestamp}})
                 </div>
             </a>
@@ -81,7 +81,7 @@
 
     <script id="template-user" type="text/handlebars">
         <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">
-        <div class="panel {{#self}}callout{{/self}}">
+        <div class="{{#self}}callout{{/self}}">
             {{#image}}
                 <a class="th">
                     <img src="{{image.data}}">

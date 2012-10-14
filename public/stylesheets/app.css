@@ -5033,7 +5033,7 @@ h1, h2, h3 {
 /* line 57, ../sass/project.scss */
 #users-list li {
   text-align: left;
-  height: 100px;
+  /*height: 100px;*/
   *zoom: 1;
 }
 /* line 4, ../../../../../../Library/Ruby/Gems/1.8/gems/zurb-foundation-3.1.1/scss/foundation/mixins/_clearfix.scss */
