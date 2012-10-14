@@ -163,7 +163,7 @@ app.post('/upload', function (req,res) {
     var fileName = req.files.filename.name;
 
     fs.readFile(req.files.filename.path, function (err, data) {
-        
+
       var newPath = __dirname + "/public/recordings/" + fileName;
       fs.writeFile(newPath, data, function (err) {
 
@@ -201,14 +201,16 @@ app.post('/messages', function (req,res) {
     _.each(messagesSinceLastMessage, function (message) {
         console.log('VOICE', tropo_voices[user.locale][3]);
         //value, as, name, required, voice
-        tropo.say(message.get('translations')[user.locale], null, null, null, tropo_voices[user.locale][3]);
+        var says = message.get('translations')[user.locale];
+        if (user.locale === message.user.locale && message.file) {
+            says = 'http://54.243.182.246:3000' + message.file;
+        }
+        tropo.say(says, null, null, null, tropo_voices[user.locale][3]);
     });
 
     userModel.set('lastMessage', messagesCollection.length-1);
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
-
-
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
