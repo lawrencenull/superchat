@@ -251,6 +251,7 @@ var AppController = Backbone.Model.extend({
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
             t.message(user.id, 'getAllMessages', chatController.render());
+            console.log('ADDING USER TO COLLECTION', user);
             usersController.add(user);
         });
         this.on('_userSessionEnded', function (user) {
