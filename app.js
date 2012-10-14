@@ -357,9 +357,7 @@ app.post('/call', function (req, res) {
         return message.get('user').id === phoneNumber;
     });
 
-    var userMessages = userMessagesCollection.toJSON();
-
-    var message = userMessages[userMessages.length-1];
+    var message = userMessagesCollection.last().toJSON();
     message.message = req.body.result.transcription;
 
     console.log(message);
