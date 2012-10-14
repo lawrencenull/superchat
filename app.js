@@ -193,7 +193,6 @@ app.post('/messages', function (req,res) {
 
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        console.log(arguments);
         return index > user.lastMessage;
     });
 
@@ -205,7 +204,7 @@ app.post('/messages', function (req,res) {
         tropo.say(message.get('message'));
     });
 
-    user.set('lastMessage', messagesCollection.length-1);
+    userModel.set('lastMessage', messagesCollection.length-1);
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
 
