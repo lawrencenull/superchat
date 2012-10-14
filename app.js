@@ -130,7 +130,7 @@ app.post('/continue', function(req, res){
      
     console.log(answer);
 
-    res.redirect('/'+answer);
+    app.next('/'+answer);
          
     res.send(TropoJSON(tropo));
  
