@@ -48,6 +48,9 @@ exports.init = function(d) {
                         model.set('user', data);
                     }
                 });
+            } else if (data.id) {
+                var messageModel = t.messagesCollection.get(id);
+                messageModel.update(data);
             }
         }
     });
