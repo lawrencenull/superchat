@@ -75,7 +75,7 @@ app.post('/tropo', function(req, res){
         }
     });
 
-    var say = new Say('http://54.243.182.246:3000/greeting.mp3');
+    var say = new Say('http://54.243.182.246:3000/public/greeting.mp3');
     var choices = new Choices('1,2');
 
     tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
