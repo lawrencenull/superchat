@@ -98,6 +98,10 @@ app.post('/tropo', function (req,res,next) {
         console.log('CALL ENDED');
     });
 
+    req.on('close', function () {
+        console.log('CALL CLOSED');
+    });
+
     res.end(TropoJSON(tropo));
 });
 
