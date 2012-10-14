@@ -89,7 +89,7 @@ app.post('/listen', function(req, res){
     var phoneNumber = req.query.id;
     var localeDigit = req.body['result']['actions']['value'];
     
-    if (localeDigit) {
+    if (localeDigit == 'en' || localeDigit == 'sp') {
         var locale = 'en';
         if (localeDigit == 2) {
             locale = 'sp';
