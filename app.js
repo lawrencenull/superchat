@@ -78,9 +78,10 @@ app.post('/tropo', function (req,res,next) {
     });
 
     // greet
+    var choices = new Choices('record', 'listen');
     var say = new Say("Record or listen?");
     
-    tropo.ask( { "value": "record, listen" }, null, 3, null, null, null, 'route', true, say);
+    tropo.ask( choices, null, 3, null, null, null, 'route', true, say);
 
     tropo.on('continue', null, '/route', true);
 
