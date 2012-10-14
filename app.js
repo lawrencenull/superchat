@@ -180,6 +180,10 @@ app.post('/upload', function (req,res) {
 
 app.post('/messages', function (req,res) {
     var tropo = new TropoWebAPI();
+    var tropo-voices = {
+        'es': ['Carmen', 'Leonor', 'Jorge', 'Juan'],
+        'en': ['Allison', 'Susan', 'Vanessa', 'Veronica', 'Dave', 'Steven', 'Victor']
+    };
 
     var phoneNumber = req.query.id;
 
@@ -194,9 +198,7 @@ app.post('/messages', function (req,res) {
     console.log(messagesSinceLastMessage);
 
     _.each(messagesSinceLastMessage, function (message) {
-        console.log(user.locale);
-        console.log('TRANSLATED MESSAGE: ', message.get('translations')[user.locale]);
-        tropo.say(message.get('translations')[user.locale]);
+        tropo.say(message.get('translations')[user.locale], null, null, null, null, tropo-voices[user.locale][0]);
     });
 
     userModel.set('lastMessage', messagesCollection.length-1);
@@ -224,16 +226,6 @@ app.post('/hangup', function (req,res) {
 
 app.get('/', routes.index);  
 app.get('/users', user.list);
-
-app.get('/translate', function(req, res) {
-    var locales = ['es', 'fr'];
-    _.each(locales, function(locale) {
-        translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: 'one', target: locale}, function(result) {
-          console.log(result['one']); // prints {"one": "un", "two": "duex"}
-        });
-    });
-    res.end();
-});
 
 http.createServer(app)
     .listen(app.get('port'), function () {
