@@ -180,7 +180,7 @@ app.post('/upload', function (req,res) {
 
 app.post('/messages', function (req,res) {
     var tropo = new TropoWebAPI();
-    var tropo-voices = {
+    var tropo_voices = {
         'es': ['Carmen', 'Leonor', 'Jorge', 'Juan'],
         'en': ['Allison', 'Susan', 'Vanessa', 'Veronica', 'Dave', 'Steven', 'Victor']
     };
@@ -198,7 +198,7 @@ app.post('/messages', function (req,res) {
     console.log(messagesSinceLastMessage);
 
     _.each(messagesSinceLastMessage, function (message) {
-        tropo.say(message.get('translations')[user.locale], null, null, null, null, tropo-voices[user.locale][0]);
+        tropo.say(message.get('translations')[user.locale], null, null, null, null, tropo_voices[user.locale][0]);
     });
 
     userModel.set('lastMessage', messagesCollection.length-1);
