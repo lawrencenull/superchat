@@ -147,7 +147,7 @@ app.post('/listen', function(req, res){
 
     tropo.on('continue', null, '/record', true);
 
-    tropo.on('timeout', null, '/messages', true);
+    tropo.on('incomplete', null, '/messages', true);
 
     /*if (answer === 'record') {
         // record user text
