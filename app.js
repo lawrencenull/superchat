@@ -139,9 +139,9 @@ app.post('/listen', function(req, res){
  
     //var answer = req.body['result']['actions']['value'];
      
-    var choices = new Choices('*');
+    var choices = new Choices('#');
 
-    tropo.ask(choices, null, null, null, 'poll', null, null, null, 500, null);
+    tropo.ask(choices, null, null, null, 'poll', null, null, null, 5, null);
 
     tropo.on('continue', null, '/record', true);
 
