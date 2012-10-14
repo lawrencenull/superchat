@@ -66,36 +66,56 @@ app.post('/tropo', function(req, res){
     var tropo = new TropoWebAPI();
 
 
-    var phoneNumber = req.body.session.from.id;
+    var phoneNumber = req.body.session.from.id;     
 
-    // on call start, add phone user to users collection
-    appController.trigger('_userSessionStarted', {
-        id: phoneNumber,
-        image: {
-            'data': '/images/default-phone-image.gif'
-        }
-    });
+    var say = new Say('Press one for English. Para Espanol, Oprima El Dos.')
+    //tropo.say("Welcome. Hit pound at any time to record a new message.");
+
+    var choices = new Choices('1,2');
+
+    tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
      
-    tropo.say("Welcome. Hit pound at any time to record a new message.");
-     
-    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+    tropo.on("continue", null, "/initialize?id="+phoneNumber, true);
     
-    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
+    // do we need to avoid triggering hangup because it could add a user that hasn't been added yet?
+    //tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
      
 });
- 
-app.post('/listen', function(req, res){
-     
+
+app.post('/initialize', function (req, res) {
     var tropo = new TropoWebAPI();
 
     var phoneNumber = req.query.id;
- 
-    //var answer = req.body['result']['actions']['value'];
-     
-    var say = new Say('');
 
+    var locale = 'en';
+    var localeDigit = req.body['result']['actions']['value'];
+
+    if (localeDigit == 2) {
+        locale = 'sp';
+    }
+
+    // on call start, add phone user to users collection
+    appController.trigger('_userSessionStarted', {
+        id: phoneNumber,
+        locale: locale,
+        image: {
+            'data': '/images/default-phone-image.gif'
+        }
+    });
+
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+    
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
+
+});
+ 
+app.post('/listen', function(req, res){
+
+    var tropo = new TropoWebAPI();
+    var phoneNumber = req.query.id;
+    var say = new Say('');
     var choices = new Choices(null, null, '#');
 
     tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
