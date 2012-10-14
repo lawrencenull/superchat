@@ -30,8 +30,19 @@ exports.init = function(d) {
     		
     		this.on('messageAdded', function (message) {
 
-                t.translateMessage(message, function(translations) {
-                    message.translations = translations;
+                message.translations = {};
+                message.translations[message.user.locale] = message.message;
+
+                var newLocale;
+
+                if (message.user.locale === 'en') {
+                    newLocale = 'es';
+                } else if (message.user.locale === 'es') {
+                    newLocale = 'en';
+                }
+
+                translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: message.message, source: message.user.locale, target: newLocale}, function(result) {
+                    message.translations[newLocale] = result[message.message];
                     t.messagesCollection.add(message);
                 });
 
@@ -61,28 +72,23 @@ exports.init = function(d) {
             } else if (data.id) {
                 console.log('UPDATE CHAT CONTROLLER', data);
                 var messageModel = t.messagesCollection.get(data.id);
-                t.translateMessage(messageModel, function(translations) {
-                    data.translations = translations;
-                    messageModel.update(data);
+
+                data.translations = {};
+                data.translations[message.user.locale] = data.message;
+
+                var newLocale;
+
+                if (data.user.locale === 'en') {
+                    newLocale = 'es';
+                } else if (data.user.locale === 'es') {
+                    newLocale = 'en';
+                }
+
+                translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: data.message, source: data.user.locale, target: newLocale}, function(result) {
+                    data.translations[newLocale] = result[data.message];
+                    t.messagesCollection.update(data);
                 });
             }
-        },
-        translateMessage: function (message, callback) {
-            message.translations = {};
-            message.translations[message.user.locale] = message.message;
-
-            var newLocale;
-
-            if (message.user.locale === 'en') {
-                newLocale = 'es';
-            } else if (message.user.locale === 'es') {
-                newLocale = 'en';
-            }
-
-            translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: message.message, source: message.user.locale, target: newLocale}, function(result) {
-                message.translations[newLocale] = result[message.message];
-                callback(message.translations);
-            });
         }
     });
 
