@@ -85,7 +85,12 @@ app.post('/tropo', function (req,res,next) {
         });*/
     });
 
+    //On = function(event, name, next, required, say) {
     tropo.on('hangup', null, '/hangup', true);
+
+    req.addListener('end', function() {
+        console.log('end');
+    });
 
     // record user text
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
@@ -93,9 +98,6 @@ app.post('/tropo', function (req,res,next) {
     var choices = new Choices(null,null,'#')
     tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-    res.on('end', function () {
-        console.log('RESPONSE END');
-    });
 
     res.end(TropoJSON(tropo));
 });
