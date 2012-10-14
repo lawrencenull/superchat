@@ -128,11 +128,28 @@ app.post('/continue', function(req, res){
  
     var answer = req.body['result']['actions']['value'];
      
-    tropo.say("You said " + answer);
     console.log(answer);
+
+    if (answer === 'listen') {
+        res.redirect('/listen');
+    } else if (answer === 'record') {
+        res.redirect('/record');
+    }
          
     res.send(TropoJSON(tropo));
  
+});
+
+app.post('/listen', function (req,res) {
+    var tropo = new TropoWebAPI();
+    console.log('entered listen');
+    res.send(TropoJSON(tropo));
+});
+
+app.post('/record', function (req,res) {
+    var tropo = new TropoWebAPI();
+    console.log('entered record');
+    res.send(TropoJSON(tropo));
 });
 
 
