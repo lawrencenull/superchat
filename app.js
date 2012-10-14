@@ -120,7 +120,7 @@ app.post('/tropo', function(req, res){
         }
     });
      
-    var say = new Say("Welcome. Hit asterisk to record a new message.");
+    tropo.say("Welcome. Hit pound at any time to record a new message.");
     //var choices = new Choices("record, listen");
  
     // (choices, attempts, bargein, minConfidence, name, recognizer, required, say, timeout, voice);
