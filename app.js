@@ -121,7 +121,7 @@ app.post('/record', function (req,res) {
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
     var choices = new Choices(null,null,'#')
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-    tropo.record(null, null, true, choices, null, 5, 30, null, null, "recording", null, say, 5, transcription, "http://54.243.182.246:3000/upload", null, null);
+    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", null, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
@@ -132,11 +132,22 @@ app.post('/record', function (req,res) {
 
 app.post('/upload', function (req,res) {
 
+    var phoneNumber = req.query.id;
+    var fileName = req.files.filename.name;
+
     fs.readFile(req.files.filename.path, function (err, data) {
-      // ...
-      var newPath = __dirname + "/recordings/" + req.files.filename.name;
+      var newPath = __dirname + "/public/recordings/" + fileName;
       console.log(newPath);
       fs.writeFile(newPath, data, function (err) {
+
+        appController.add('_chatMessageAdded', {
+            user: {
+                id: phoneNumber
+            },
+            message: '(New Message)',
+            file: '/recordings/'+fileName
+        });
+
         res.redirect("back");
       });
     });
