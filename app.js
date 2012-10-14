@@ -65,7 +65,6 @@ app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
 
-
     var phoneNumber = req.body.session.from.id;     
 
     var say = new Say('Press one for English. Para Espanol, Oprima El Dos.')
@@ -78,7 +77,7 @@ app.post('/tropo', function(req, res){
     tropo.on("continue", null, "/initialize?id="+phoneNumber, true);
     
     // do we need to avoid triggering hangup because it could add a user that hasn't been added yet?
-    //tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
      
