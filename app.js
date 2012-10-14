@@ -191,10 +191,21 @@ app.post('/messages', function (req,res) {
     var userModel = appController.usersController.usersCollection.get(phoneNumber);
     var user = userModel.toJSON();
 
+    var skipEverything = false;
+
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        return (index > user.lastMessage) && ( message.get('user').id !== phoneNumber );
+        if (message.translations[message.get('user').locale] !== '(Transcribing audio ...)') {
+            skipEverything = true;
+        }
+        return (index > user.lastMessage)
+            && ( message.get('user').id !== phoneNumber );
     });
+
+    if (skipEverything) {
+        res.send(TropoJSON(tropo));
+        return;
+    }
 
     _.each(messagesSinceLastMessage, function (messageModel) {
         //value, as, name, required, voice
