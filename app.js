@@ -200,7 +200,9 @@ app.post('/messages', function (req,res) {
 
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        if (message.translations[message.get('user').locale] !== '(Transcribing audio ...)') {
+        if (!message.translations) {
+            skipEverything = true;
+        } else if (message.translations[message.get('user').locale] === '(Transcribing audio ...)') {
             skipEverything = true;
         }
         return (index > user.lastMessage)
