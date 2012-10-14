@@ -103,7 +103,7 @@ app.post('/listen', function(req, res){
     tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
 
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-    
+
 
     res.send(TropoJSON(tropo));
  
@@ -152,6 +152,9 @@ app.post('/messages', function (req,res) {
     userModel.set('lastMessage', messagesCollection.length-1);
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
+
+    
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
 });
