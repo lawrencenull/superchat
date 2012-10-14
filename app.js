@@ -87,7 +87,7 @@ app.post('/listen', function(req, res){
 
     var tropo = new TropoWebAPI();
     var phoneNumber = req.query.id;
-    var localeDigit = req.body['result']['actions']['value'];
+    var localeDigit = req.body['result']['actions']['locale'];
     
     if (localeDigit == 'en' || localeDigit == 'sp') {
         console.log(localeDigit);
