@@ -102,8 +102,20 @@ app.post('/listen', function(req, res){
 
     tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
 
+    tropo.on('error', null, '/hangup?id='+phoneNumber, true);
+
     res.send(TropoJSON(tropo));
  
+});
+
+app.post('/hangup', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    var phoneNumber = req.query.id;
+
+    console.log('HANGUP', phoneNumber);
+
+    res.send(TropoJSON(tropo));
 });
 
 app.post('/record', function (req,res) {
