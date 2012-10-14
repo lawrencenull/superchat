@@ -79,6 +79,8 @@ app.post('/tropo', function(req, res){
     tropo.say("Welcome. Hit pound at any time to record a new message.");
      
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+    
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
      
