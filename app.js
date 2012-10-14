@@ -74,7 +74,7 @@ app.post('/tropo', function(req, res){
 
     tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
      
-    tropo.on("continue", null, "/initialize?id="+phoneNumber, true);
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
     
     // do we need to avoid triggering hangup because it could add a user that hasn't been added yet?
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
