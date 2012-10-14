@@ -71,7 +71,6 @@ exports.init = function(d) {
                 });
             } else if (data.id) {
                 console.log('UPDATE CHAT CONTROLLER', data);
-                var messageModel = t.messagesCollection.get(data.id);
 
                 data.translations = {};
                 data.translations[data.user.locale] = data.message;
@@ -85,8 +84,9 @@ exports.init = function(d) {
                 }
 
                 translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: data.message, source: data.user.locale, target: newLocale}, function(result) {
+                    var messageModel = t.messagesCollection.get(data.id);
                     data.translations[newLocale] = result[data.message];
-                    t.messagesCollection.update(data);
+                    messageModel.update(data);
                 });
             }
         }
