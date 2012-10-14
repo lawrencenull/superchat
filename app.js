@@ -95,7 +95,7 @@ app.post('/listen', function(req, res){
     var phoneNumber = req.query.id;
     var localeDigit = req.body['result']['actions']['value'];
     
-    if (localeDigit === '2') {
+    if (localeDigit && localeDigit === '2') {
         console.log('TWO');
         var userModel = appController.chatController.messagesCollection.get(phoneNumber)[0];
         var user = userModel.toJSON();
