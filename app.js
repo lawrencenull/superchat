@@ -76,12 +76,13 @@ app.post('/tropo', function (req,res,next) {
     });
 
     // on call end, remove phone user from user collection
-    req.addListener('end', function() {
+    req.addListener('data', function(data) {
         console.log('HANGUP');
+        console.log(data);
 
-        appController.trigger('_userSessionEnded', {
+        /*appController.trigger('_userSessionEnded', {
             id: phoneNumber
-        });
+        });*/
     });
 
     // record user text
