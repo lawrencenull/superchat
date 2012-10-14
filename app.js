@@ -170,6 +170,7 @@ app.post('/upload', function (req,res) {
         appController.trigger('_chatMessageAdded', {
             user: user,
             message: '(Transcribing audio...)',
+            translations = {},
             file: '/recordings/'+fileName
         });
 
@@ -188,7 +189,7 @@ app.post('/messages', function (req,res) {
 
     var phoneNumber = req.query.id;
 
-    
+
         tropo.on('continue', null, '/listen?id='+phoneNumber, null);
         tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
