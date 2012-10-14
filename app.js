@@ -109,12 +109,12 @@ app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
      
-    var say = new Say("What's your favorite color?  Choose from red, blue or green.");
-    var choices = new Choices("red, blue, green");
+    var say = new Say("Record or listen?");
+    var choices = new Choices("record, listen");
  
     // (choices, attempts, bargein, minConfidence, name, recognizer, required, say, timeout, voice);
      
-    tropo.ask(choices, null, null, null, "color", null, null, say, 60, null);
+    tropo.ask(choices, null, null, null, "route", null, null, say, 60, null);
      
     tropo.on("continue", null, "/continue", true);
      
@@ -129,6 +129,7 @@ app.post('/continue', function(req, res){
     var answer = req.body['result']['actions']['value'];
      
     tropo.say("You said " + answer);
+    console.log(answer);
          
     res.send(TropoJSON(tropo));
  
