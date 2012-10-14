@@ -86,7 +86,11 @@ app.post('/listen', function(req, res){
 
     var tropo = new TropoWebAPI();
     var phoneNumber = req.query.id;
-    var localeDigit = req.body['result']['actions']['value'];
+    var localeDigit;
+
+    if (req.body.result && req.body.result.actions) {
+        localeDigit = req.body.result.actions.value;
+    }
 
     if (localeDigit && (localeDigit === '1' || localeDigit === '2')) {
         console.log('CREATE');
