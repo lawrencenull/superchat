@@ -191,7 +191,7 @@ app.post('/messages', function (req,res) {
 
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        return index > user.lastMessage;
+        return (index > user.lastMessage) && ( message.get('user').id !== phoneNumber );
     });
 
     console.log(messagesSinceLastMessage);
