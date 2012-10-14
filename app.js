@@ -137,9 +137,9 @@ app.post('/listen', function(req, res){
      
     var tropo = new TropoWebAPI();
 
-    var phoneNumber = req.params.id;
+    var phoneNumber = req.query.id;
 
-    console.log('PHONE NUMBER IS', req);
+    console.log('PHONE NUMBER IS', phoneNumber);
  
     //var answer = req.body['result']['actions']['value'];
      
