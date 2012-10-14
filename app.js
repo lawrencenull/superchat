@@ -194,8 +194,8 @@ app.post('/messages', function (req,res) {
     console.log(messagesSinceLastMessage);
 
     _.each(messagesSinceLastMessage, function (message) {
-        console.log('a message since last message', message.toJSON());
-        tropo.say(message.get('message'));
+        console.log('TRANSLATED MESSAGE: ', message.get('translations.'+user.locale));
+        tropo.say(message.get('translations.'+user.locale));
     });
 
     userModel.set('lastMessage', messagesCollection.length-1);
@@ -394,7 +394,6 @@ app.post('/call', function (req, res) {
     }*/
 
     var user = appController.usersController.usersCollection.get(phoneNumber).toJSON();
-    console.log('USERS LANGUAGE IS ', locale);
 
     var messagesCollection = appController.chatController.messagesCollection;
     var userMessagesCollection = messagesCollection.filter(function (message, index) {
