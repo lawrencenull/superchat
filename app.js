@@ -199,11 +199,14 @@ app.post('/messages', function (req,res) {
     _.each(messagesSinceLastMessage, function (message) {
         //value, as, name, required, voice
 
-        console.log(message);
+        console.log('THIS IS HTE MESSAGE', message);
+
         var says = message.get('translations')[user.locale];
+        
         if (user.locale === message.user.locale && message.file) {
             says = 'http://54.243.182.246:3000' + message.file;
         }
+
         tropo.say(says, null, null, null, tropo_voices[user.locale][3]);
     });
 
