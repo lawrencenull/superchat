@@ -139,7 +139,7 @@ app.post('/listen', function(req, res){
 
     var phoneNumber = req.params.id;
 
-    console.log('PHONE NUMBER IS', phoneNumber);
+    console.log('PHONE NUMBER IS', req);
  
     //var answer = req.body['result']['actions']['value'];
      
