@@ -121,13 +121,17 @@ app.post('/record', function (req,res) {
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
     var choices = new Choices(null,null,'#')
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-    tropo.record(null, null, true, choices, null, 5, 30, null, null, "recording", null, say, 5, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+    tropo.record(null, null, true, choices, null, 5, 30, null, null, "recording", null, say, 5, transcription, "http://54.243.182.246:3000/upload", null, null);
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
+});
+
+app.post('/upload', function (req,res) {
+    console.log(req);
 });
 
 app.post('/messages', function (req,res) {
