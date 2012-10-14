@@ -22,6 +22,13 @@ var UsersListView = Backbone.View.extend({
                 name: prompt("What's your name?")
             };
             this.trigger('_update', user);
+        },
+        'click .self .locale': function (e) {
+            var user = {
+                id: $(e.target).closest('.user').attr('data-id'),
+                locale: prompt("What's your locale?")
+            };
+            this.trigger('_update', user);
         }
     },
     template: (function () { return $('#template-user').html() }()),

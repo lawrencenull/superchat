@@ -13,6 +13,7 @@ var express = require('express'),
     Backbone = require('backbone'),
     fs = require('fs'),
     tropo_webapi = require('tropo-webapi'),
+    translate = require('node-google-translate'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
     appChat = require('./server/chat'),
@@ -210,6 +211,16 @@ app.post('/hangup', function (req,res) {
 app.get('/', routes.index);  
 app.get('/users', user.list);
 
+app.get('/translate', function(req, res) {
+    var locales = ['es', 'fr'];
+    _.each(locales, function(locale) {
+        translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: 'one', target: locale}, function(result) {
+          console.log(result['one']); // prints {"one": "un", "two": "duex"}
+        });
+    });
+    res.end();
+});
+
 http.createServer(app)
     .listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
@@ -256,9 +267,11 @@ appUsers.init({
 });
 
 // import Chat
+console.log(translate);
 appChat.init({
     _: _,
-    Backbone: Backbone
+    Backbone: Backbone,
+    translate: translate
 });
 
 appDraw.init({
@@ -406,6 +419,7 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_fileAdded', data);
     });
     socket.on('chatMessageAdded', function (data) {
+        console.log(data);
         appController.trigger('_chatMessageAdded', data);
     });
     socket.on('reloadRequest', function (data) {

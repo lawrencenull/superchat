@@ -3,11 +3,15 @@
 exports.init = function(d) {
 
 	var _ = d._
-	  , Backbone = d.Backbone;
+	  , Backbone = d.Backbone
+      , translate = d.translate;
 
     var MessageModel = Backbone.Model.extend({
     	defaults: {
-
+            translations: {
+                'en': '',
+                'es': ''
+            }
     	},
     	initialize: function () {
             this.set('id', this.cid);
@@ -25,7 +29,24 @@ exports.init = function(d) {
     		var messagesCollection = this.messagesCollection = new MessagesCollection();
     		
     		this.on('messageAdded', function (message) {
-    			t.messagesCollection.add(message);
+                console.log(translate);
+
+                message.translations = {};
+                message.translations[message.user.locale] = message.message;
+
+                var newLocale;
+
+                if (message.user.locale === 'en') {
+                    newLocale = 'es';
+                } else if (message.user.locale === 'es') {
+                    newLocale = 'en';
+                }
+
+                translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: message.message, source: message.user.locale, target: newLocale}, function(result) {
+                    message.translations[newLocale] = result[message.message];
+                    t.messagesCollection.add(message);
+                });
+
     		});
 
     		messagesCollection.on('add', function (message) {

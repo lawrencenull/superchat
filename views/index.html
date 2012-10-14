@@ -137,11 +137,18 @@
     </script>
 
     <script id="template-user" type="text/handlebars">
-        <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span><p>{{locale}}</p></li>
+        <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span><p class="locale">{{locale}}</p></li>
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message-{{id}}" data-id="{{id}}" class="{{#user.self}}self{{/user.self}}"><img src="{{user.image.data}}"></img><span class="user">{{#user.self}}You{{/user.self}}{{^user.self}}{{user.name}}{{/user.self}}</span> {{#file}}<audio controls="controls"><source src="{{file}}" type="audio/mpeg"></source></audio>{{/file}} <p>{{message}}</p></li>
+        <li id="message-{{id}}" data-id="{{id}}" class="{{#user.self}}self{{/user.self}}">
+            <img src="{{user.image.data}}"></img>
+            <span class="user">{{#user.self}}You{{/user.self}}{{^user.self}}{{user.name}}{{/user.self}}</span>
+            {{#file}}
+                <audio controls="controls"><source src="{{file}}" type="audio/mpeg"></source></audio>
+            {{/file}}
+            <p>{{translation}}</p>
+        </li>
     </script>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
@@ -153,6 +160,12 @@
 
 
     <script>
+
+
+        // Handlebars.registerHelper('myTranslation', function(user) {
+        //     // return message.translations[message.user.locale];
+        //     return user;
+        // });
 
         Backbone.Controller = Backbone.View;
 
