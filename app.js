@@ -88,7 +88,7 @@ app.post('/listen', function(req, res){
     var phoneNumber = req.query.id;
     var localeDigit = req.body['result']['actions']['value'];
 
-    if (localeDigit && {localeDigit === '1' && localeDigit === '2'})
+    if (localeDigit && (localeDigit === '1' || localeDigit === '2'))
         var locale = 'en';
         if (localeDigit === '2') {
             locale = 'es'
