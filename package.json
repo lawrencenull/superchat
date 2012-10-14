@@ -10,7 +10,8 @@
     "jade": "*",
     "http": "*",
     "socket.io": "*",
-    "ejs": "*"
+    "ejs": "*",
+    "node-google-translate": "~0.1.0"
   },
   "subdomain": "mpuckett.node-express",
   "engines": {

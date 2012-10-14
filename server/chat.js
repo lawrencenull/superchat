@@ -9,8 +9,8 @@ exports.init = function(d) {
     var MessageModel = Backbone.Model.extend({
     	defaults: {
             translations: {
-                'en': '',
-                'es': ''
+                'en': '(Translating...)',
+                'es': '(Translating...)'
             }
     	},
     	initialize: function () {

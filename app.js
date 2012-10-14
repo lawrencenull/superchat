@@ -87,6 +87,7 @@ app.post('/listen', function(req, res){
     var tropo = new TropoWebAPI();
     var phoneNumber = req.query.id;
     var localeDigit;
+    var recognizer = 'en-us';
 
     if (req.body.result && req.body.result.actions) {
         localeDigit = req.body.result.actions.value;
@@ -96,12 +97,14 @@ app.post('/listen', function(req, res){
         console.log('CREATE');
         var locale = 'en';
         if (localeDigit === '2') {
-            locale = 'es'
+            locale = 'es';
+            recognizer = 'es-es';
         }
 
         appController.trigger('_userSessionStarted', {
             id: phoneNumber,
             locale: locale,
+            recognizer: recognizer,
             image: {
                 'data': '/images/default-phone-image.gif'
             }
@@ -132,13 +135,17 @@ app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
 
     var phoneNumber = req.query.id;
+    var userModel = appController.usersController.usersCollection.get(phoneNumber);
+    var user = userModel.toJSON();
 
     var say = new Say('Press pound after recording your message.');
+
+    console.log('TROPO RECOGNIZER', user.recognizer);
 
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
     var choices = new Choices(null,null,'#');
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", null, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
+    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", user.recognizer, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
