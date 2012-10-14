@@ -100,7 +100,7 @@ app.post('/tropo', function (req,res,next) {
     res.end(TropoJSON(tropo));
 });
 
-app.get('/hangup', function (req, res) {
+app.post('/hangup', function (req, res) {
     console.log('this baby hung up!');
 });
 
