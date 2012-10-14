@@ -88,7 +88,7 @@ app.post('/tropo', function (req,res,next) {
     });
 
     //On = function(event, name, next, required, say) {
-    tropo.on('hangup', null, '/hangup', true);
+    tropo.on('incomplete', null, '/hangup', true);
 
     req.addListener('end', function() {
         console.log('end');
