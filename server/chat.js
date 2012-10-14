@@ -64,7 +64,11 @@ exports.init = function(d) {
             }
         },
         translateMessage: function (message) {
-            message.translations = {};
+            message.translations = {
+                'en': '',
+                'es': ''
+            };
+
             message.translations[message.user.locale] = message.message;
 
             var newLocale;
