@@ -109,7 +109,7 @@ app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
 
-    
+
     var phoneNumber = req.body.session.from.id;
 
     // on call start, add phone user to users collection
@@ -163,6 +163,9 @@ app.post('/listen', function(req, res){
 
 app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
+
+    
+    var phoneNumber = req.body.session.from.id;
 
     var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
     var choices = new Choices(null,null,'#')
