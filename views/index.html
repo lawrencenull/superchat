@@ -1,143 +1,94 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-    <meta charset="UTF-8">
-    <title>iostudio Whiteboard</title>
+    <meta charset="utf-8" />
 
-    <style type="text/css" media="screen">
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        html,
-        body {
-            font-family: Helvetica, sans-serif;
-            height: 100%;
-            margin: 50px auto 0;
-            padding: 20px;
-            text-align: center;
-            width: 600px;
-        }
-        .hide {
-            display: none !important;
-        }
-        .show {
-            display: none !important;
-            width: 100%;
-            background-color: #555;
-        }
-        #dropzone {
-            border:4px dashed red;
-        }
+    <!-- Set the viewport width to device width for mobile -->
+    <meta name="viewport" content="width=device-width" />
 
-        .dragover {
-          background-color: orange;  
-        }
+    <title>Welcome to Foundation</title>
 
-        #users-list {
-            list-style: none;
-        }
-        #users-list li {
-            text-align: left;
-            height: 100px;
-            padding: 10px;
-        }
-        #chat-messages-list img,
-        #users-list img {
-            float: left;
-            height: 100%;
-            margin-right: 10px;
-        }
-        #users-list .self .name {
-            font-weight: bold;
-        }
-        #users-list .self .name:after {
-            content: " (That's you!)";
-            font-weight: normal;
-        }
-        #users-list .self img {
-            cursor: pointer;
-        }
-        #users-list .self img:hover {
-            opacity: .7;
-        }
+    <!-- Included CSS Files -->
+    <link rel="stylesheet" href="/stylesheets/app.css">
 
-        #chat-messages-list {
-            border: 1px solid #999;
-            height: 400px;
-            overflow: scroll;
-            margin: 1em 0;
-            list-style-type: none;
-            text-align: left;
-            width: 100%;
-        }
-        #chat-messages-list > li {
-            background-color: #deffe0;
-            height: 100px;
-            padding: 5px;
-        }
-        #chat-messages-list > li:nth-child(odd) {
-            background-color: #a9ffad;
-        }
-        #chat-messages-list > li.self {
-            background-color: yellow;
-        }
-        #chat-messages-list > li:nth-child(odd).self {
-            background-color: #faffd3;
-        }
-        #chat-messages-list > li > .user {
-            font-weight: bold;
-        }
-        #chat-messages-list > li > .user:after {
-            content: ':';
-        }
-        #chat input {
-            border: 1px solid #999;
-            padding: 1em;
-            font-size: 1em;
-            width: 100%;
-        }
-        #webcam,
-        #webcam-feed {
-            display: none;
-            height: 300px;
-            width: 100%;
-        }
-        #webcam.open {
-            display: block;
-        }
-        #snapshot {
-            display: block;
-        }
-    </style>
+    <script src="/scripts/foundation/modernizr.foundation.js"></script>
 
+    <!-- IE Fix for HTML5 Tags -->
+    <!--[if lt IE 9]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 </head>
 <body>
-    <video autoplay="true" id="webcam"></video>
-    <canvas id="webcam-feed"></canvas>
+<nav class="top-bar fixed">
+    <ul>
+        <ul>
+            <li class="name"><h1><a href="#">whiteboard!</a></h1></li>
+            <li class="toggle-topbar"><a href="#"></a></li>
+        </ul>  
+    </ul>
+</nav>
+    <div class="row">
+        <div class="twelve columns">
 
-    <div id="dashboard">Drag files here.</div>
-    <h2>Files</h2>
-    <div id="files-list"></div>
-    <h2>Users</h2>
-    <div id="users-list"></div>
-    <script src="http://d3js.org/d3.v2.js"></script>
-    <svg id="main" draggable="true"></svg>
+            <div class="row">
+                <div class="three columns">
+                    <div class="row">
+                        <div class="twelve columns">
+                            <h2>Users</h2>
+                            <ul id="users-list"></ul>
+                            <h2>Files</h2>
+                            <ul id="files-list"></ul>
+                        </div>
+                    </div>    
+                </div>
+                <div class="nine columns">
+                        <video class="th" autoplay="true" id="webcam">
+                        </video>
+                        <canvas id="webcam-feed"></canvas>
+                        <form id="chat">
+                            <h2>Chat <a id="request-chat-notifications-permission" class="hide" href="#">(Click for Growl-like Notifications!)</a></h2>
+                            <ul id="chat-messages-list"></ul>
+                            <div class="chat-box">
+                                <input type="text" placeholder="Message Here...">
+                            </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!--<script src="http://d3js.org/d3.v2.js"></script>
+    <svg id="main" draggable="true"></svg>-->
 
 
-    <form id="chat">
-        <h2>Chat <a id="request-chat-notifications-permission" class="hide" href="#">(Click for Growl-like Notifications!)</a></h2>
-        <ul id="chat-messages-list"></ul>
-        <input type="text" placeholder="Message Here...">
-    </form>
+
 
     <script id="template-file" type="text/handlebars">
-        <li id="file-{{id}}" data-id="{{id}}"><a href="/files/{{name}}" download="{{name}}">{{name}} ({{user}} at {{timestamp}})</a></li>
+        <li id="file-{{id}}" data-id="{{id}}">   
+            <a href="/files/{{name}}" download="{{name}}">
+                <div class ="panel">
+                    {{name}} ({{user}} at {{timestamp}})
+                </div>
+            </a>
+        </li>
     </script>
 
     <script id="template-user" type="text/handlebars">
-        <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">{{#image}}<img src="{{image.data}}">{{/image}}<span class="name">{{name}}</span><p class="locale">{{locale}}</p></li>
+        <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">
+        <div class="panel {{#self}}callout{{/self}}">
+            {{#image}}
+                <a class="th">
+                    <img src="{{image.data}}">
+                </a>
+            {{/image}}
+            <span class="name">{{name}}</span></div>
+        </li>
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
@@ -157,16 +108,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.5.0-dev/mustache.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0.beta6/handlebars.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js"></script>
-
-
     <script>
-
-
-        // Handlebars.registerHelper('myTranslation', function(user) {
-        //     // return message.translations[message.user.locale];
-        //     return user;
-        // });
-
         Backbone.Controller = Backbone.View;
 
         Backbone.Collection.prototype.update = function (model, params) {
@@ -261,14 +203,12 @@
     </script>
 
 
-
-
-
-
-    <script>
+    <script>//drawing backbone models/controller/view
         (function ($) {
             var LineModel = Backbone.Model.extend({
                 defaults: {
+                    // socketID: 'meep',
+                    // //lineId: lineCollection.length-1,
                     coordinates: [{'x':null,'y':null}]
                 },
                 initialize: function(){
