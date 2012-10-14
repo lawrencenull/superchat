@@ -88,7 +88,7 @@ app.post('/tropo', function (req,res,next) {
     });
 
     //On = function(event, name, next, required, say) {
-    tropo.on('incomplete', null, '/hangup', true);
+    tropo.on("incomplete", null, "/hangup", true);
 
     req.addListener('end', function() {
         console.log('end');
@@ -104,8 +104,8 @@ app.post('/tropo', function (req,res,next) {
     res.end(TropoJSON(tropo));
 });
 
-app.post('/hangup', function (req, res) {
-    console.log('this baby hung up!');
+app.post('/hangup', function(req, res){
+    console.log("The user hungup or the call went to voicemail.");
 });
 
 
