@@ -30,6 +30,7 @@ exports.init = function(d) {
           var usersCollection = this.usersCollection = new UsersCollection();
 
           usersCollection.on('add', function (user) {
+              console.log('ADDDDDDDD...', user);
               t.trigger('_userAdded', user.toJSON() );
           });
           usersCollection.on('remove', function (user) {
