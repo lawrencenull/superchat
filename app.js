@@ -200,38 +200,29 @@ app.post('/messages', function (req,res) {
 
     var messagesCollection = appController.chatController.messagesCollection;
     var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        if (!message.translations) {
-            skipEverything = true;
-        } else if (message.translations[message.get('user').locale] === '(Transcribing audio ...)') {
-            skipEverything = true;
-        }
         return (index > user.lastMessage)
             && ( message.get('user').id !== phoneNumber );
     });
 
-    if (skipEverything) {
-        res.send(TropoJSON(tropo));
-    } else {
-        _.each(messagesSinceLastMessage, function (messageModel) {
-            //value, as, name, required, voice
+    _.each(messagesSinceLastMessage, function (messageModel) {
+        //value, as, name, required, voice
 
-            var message = messageModel.toJSON();
+        var message = messageModel.toJSON();
 
-            console.log('THIS IS HTE MESSAGE', message);
+        console.log('THIS IS HTE MESSAGE', message);
 
-            var says = message.translations[user.locale];
+        var says = message.translations[user.locale];
 
-            if (user.locale === message.user.locale && message.file) {
-                says = 'http://54.243.182.246:3000' + message.file;
-            }
+        if (message.file) {
+            says = 'http://54.243.182.246:3000' + message.file;
+        }
 
-            tropo.say(says, null, null, null, tropo_voices[user.locale][3]);
-        });
+        tropo.say(says, null, null, null, tropo_voices[user.locale][3]);
+    });
 
-        userModel.set('lastMessage', messagesCollection.length-1);
+    userModel.set('lastMessage', messagesCollection.length-1);
 
-        res.send(TropoJSON(tropo));
-    }
+    res.send(TropoJSON(tropo));
 });
 
 app.post('/hangup', function (req,res) {
