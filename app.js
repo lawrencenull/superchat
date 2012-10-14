@@ -203,7 +203,7 @@ app.post('/messages', function (req,res) {
 
         console.log('THIS IS HTE MESSAGE', message);
 
-        var says = message.get('translations')[user.locale];
+        var says = message.translations[user.locale];
 
         if (user.locale === message.user.locale && message.file) {
             says = 'http://54.243.182.246:3000' + message.file;
