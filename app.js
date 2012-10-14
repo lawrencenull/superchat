@@ -130,9 +130,12 @@ app.post('/continue', function(req, res, next){
      
     console.log(answer);
 
-    next('/'+answer);
-         
-    res.send(TropoJSON(tropo));
+    res.writeHead(200, {
+      'Location': '/'+answer
+    });
+    res.end();
+
+//    res.send(TropoJSON(tropo));
  
 });
 
