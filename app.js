@@ -182,9 +182,9 @@ app.post('/record', function (req,res) {
 app.post('/messages', function (req,res) {
     var tropo = new TropoWebAPI();
 
-    if (newMessages) {
+    //if (newMessages) {
         tropo.say('There was a new message blah blah blah blah.');
-    }
+    //}
 
     tropo.on('continue', null, '/listen', null);
 
