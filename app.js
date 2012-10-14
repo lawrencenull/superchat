@@ -369,7 +369,7 @@ app.post('/call', function (req, res) {
     console.log(message);
     console.log(req.body.result.transcription);
 
-    appController.trigger('_chatMessageUpdated', message); 
+    appController.chatController.update(message); 
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
