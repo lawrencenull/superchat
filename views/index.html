@@ -81,13 +81,14 @@
 
     <script id="template-user" type="text/handlebars">
         <li id="user-{{id}}" data-id="{{id}}" class="user {{#self}}self{{/self}}">
-        <div class="panel {{#self}}callout{{/self}}">
+        <div class="{{#self}}callout{{/self}}">
             {{#image}}
                 <a class="th">
                     <img src="{{image.data}}">
                 </a>
             {{/image}}
-            <span class="name">{{name}}</span></div>
+            <span class="name">{{name}}</span><p class="locale">{{locale}}</div>
+
         </li>
     </script>
 
