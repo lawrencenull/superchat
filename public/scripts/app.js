@@ -106,7 +106,6 @@ socket.on( '_currentUserModified', function (user) {
 });
 
 socket.on( '_userAdded', function (user) {
-    console.log('NEW USER', user);
     appController.trigger('newUser', user);
 });
 
