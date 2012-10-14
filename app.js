@@ -138,8 +138,6 @@ app.post('/listen', function(req, res){
     var tropo = new TropoWebAPI();
 
     var phoneNumber = req.query.id;
-
-    console.log('PHONE NUMBER IS', phoneNumber);
  
     //var answer = req.body['result']['actions']['value'];
      
@@ -149,9 +147,9 @@ app.post('/listen', function(req, res){
 
     tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
 
-    tropo.on('continue', null, '/record', true);
+    tropo.on('continue', null, '/record?id='+phoneNumber, true);
 
-    tropo.on('incomplete', null, '/messages', true);
+    tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
 
     /*if (answer === 'record') {
         // record user text
@@ -170,6 +168,8 @@ app.post('/listen', function(req, res){
 app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
 
+    var phoneNumber = req.query.id;
+
     tropo.say('Woo hoo you made it to record');
 
     //var phoneNumber = req.body.session.from.id;
@@ -178,7 +178,7 @@ app.post('/record', function (req,res) {
     //var choices = new Choices(null,null,'#')
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, null, 10.0, null, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-    tropo.on('continue', null, '/messages', true);
+    tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
 });
@@ -186,16 +186,23 @@ app.post('/record', function (req,res) {
 app.post('/messages', function (req,res) {
     var tropo = new TropoWebAPI();
 
-    //if (newMessages) {
-        var messagesCollection = appController.chatController.messagesCollection;
-        var length = messagesCollection.length;
-        if (messagesCollection.length > 0) {
-            console.log(messagesCollection.at(length-1).toJSON());
-            tropo.say(messagesCollection.at(length-1).toJSON().message);
-        }
-    //}
+    var phoneNumber = req.query.id;
 
-    tropo.on('continue', null, '/listen', null);
+    var user = appController.usersController.usersCollection.get(phoneNumber).toJSON();
+
+    console.log('user', user);
+
+    var messagesCollection = appController.chatController.messagesCollection;
+    var messagesSinceLastMessage = messagesCollection.filter(function (message) {
+        return message.id > user.lastMessage;
+    });
+
+    messagesSinceLastMessage.each(function (message) {
+        console.log('a message since last message', message.toJSON());
+        tropo.say(message.get('message'));
+    });
+
+    tropo.on('continue', null, '/listen?id='+phoneNumber, null);
 
     res.send(TropoJSON(tropo));
 });
