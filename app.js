@@ -140,7 +140,7 @@ app.post('/upload', function (req,res) {
       console.log(newPath);
       fs.writeFile(newPath, data, function (err) {
 
-        appController.add('_chatMessageAdded', {
+        appController.trigger('_chatMessageAdded', {
             user: {
                 id: phoneNumber
             },
