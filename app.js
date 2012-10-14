@@ -61,38 +61,103 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
-
-app.post('/tropo', function (req,res,next) {
+app.post('/tropo', function(req, res){
+     
     var tropo = new TropoWebAPI();
-//tropo.say("http://www.pickpuck.com/music.mp3");
-var transcription = {"id":"1234", "url":"http://54.243.182.246:3000/call"};
-var say = new Say("Hello, how are you?");
-var choices = new Choices(null,null,'#')
 
-tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-console.log(req.body.session.from.id);
+    var phoneNumber = req.body.session.from.id;
 
-res.end(TropoJSON(tropo));
+    // on call start, add phone user to users collection
+    appController.trigger('_userSessionStarted', {
+        id: phoneNumber,
+        image: {
+            data: '/images/default-phone-image.gif'
+        }
+    });
+     
+    tropo.say("Welcome. Hit pound at any time to record a new message.");
+     
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+     
+    res.send(TropoJSON(tropo));
+     
+});
+ 
+app.post('/listen', function(req, res){
+     
+    var tropo = new TropoWebAPI();
 
+    var phoneNumber = req.query.id;
+ 
+    //var answer = req.body['result']['actions']['value'];
+     
+    var say = new Say('');
+
+    var choices = new Choices(null, null, '#');
+
+    tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
+
+    tropo.on('continue', null, '/record?id='+phoneNumber, true);
+
+    tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
+
+    res.send(TropoJSON(tropo));
+ 
+});
+
+app.post('/record', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    var phoneNumber = req.query.id;
+
+    var say = new Say('Press pound after recording your message.');
+
+    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+    var choices = new Choices(null,null,'#')
+    tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+
+    tropo.on('continue', null, '/messages?id='+phoneNumber, true);
+
+    res.send(TropoJSON(tropo));
+});
+
+app.post('/messages', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    var phoneNumber = req.query.id;
+
+    var userModel = appController.usersController.usersCollection.get(phoneNumber);
+    var user = userModel.toJSON();
+
+    var messagesCollection = appController.chatController.messagesCollection;
+    var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
+        return (index > user.lastMessage) && ( message.get('user').id !== phoneNumber );
+    });
+
+    console.log(messagesSinceLastMessage);
+
+    //messagesSinceLastMessage.each(function (message) {
+    _.each(messagesSinceLastMessage, function (message) {
+        console.log('a message since last message', message.toJSON());
+        tropo.say(message.get('message'));
+    });
+
+    userModel.set('lastMessage', messagesCollection.length-1);
+
+    tropo.on('continue', null, '/listen?id='+phoneNumber, null);
+
+    res.send(TropoJSON(tropo));
 });
 
 
-app.get('/', routes.index);
+app.get('/', routes.index);  
 app.get('/users', user.list);
-
-
 
 http.createServer(app)
     .listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
-
-/*http.createServer(function (req,res) {
-    tropo.say('Hello world');
-    res.writeHead(200, {'Content-Type': 'application/json'}); 
-    res.end(tropowebapi.TropoJSON(tropo));
-}).listen(13188);*/
 
 
 /**
@@ -149,10 +214,10 @@ appDraw.init({
 var AppController = Backbone.Model.extend({
     initialize: function () {
         var t = this;
-        var filesController = new FilesController();
-        var usersController = new UsersController();
-        var chatController = new ChatController();
-        var drawController = new DrawController();
+        var filesController = this.filesController =new FilesController();
+        var usersController = this.usersController = new UsersController();
+        var chatController = this.chatController = new ChatController();
+        var drawController = this.drawController = new DrawController();
 
         // file listeners
         filesController.on('_newFile', function (file) {
@@ -232,10 +297,19 @@ appController = new AppController();
   Tropo setup
   */
 
-app.post('/call', function (req, res, next) { 
-    console.log(req.body.result); 
-    appController.trigger('_chatMessageAdded', {user: { id: req.body.result.guid }, message:req.body.result.transcription}); 
-    res.write('', 200); 
+app.post('/call', function (req, res) { 
+    var tropo = new TropoWebAPI();
+    var phoneNumber = req.body.result.identifier;
+    var user = appController.usersController.usersCollection.get(phoneNumber);
+    if (user.length > 0) {
+        user = user[0].toJSON();
+    } else {
+        user = { id: phoneNumber };
+    }
+    appController.trigger('_chatMessageAdded', {user: user, message:req.body.result.transcription}); 
+    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
+     
+    res.send(TropoJSON(tropo));
 });
 
 
