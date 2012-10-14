@@ -113,7 +113,7 @@ app.post('/listen', function(req, res){
     var say = new Say('');
     var choices = new Choices(null, null, '#');
 
-    tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
+    tropo.ask(choices, null, null, null, 'poll', null, null, say, 30, null);
 
     tropo.on('continue', null, '/record?id='+phoneNumber, true);
 
