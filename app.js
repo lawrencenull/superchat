@@ -194,8 +194,9 @@ app.post('/messages', function (req,res) {
     console.log(messagesSinceLastMessage);
 
     _.each(messagesSinceLastMessage, function (message) {
-        console.log('TRANSLATED MESSAGE: ', message.get('translations.'+user.locale));
-        tropo.say(message.get('translations.'+user.locale));
+        console.log(user.locale);
+        console.log('TRANSLATED MESSAGE: ', message.get('translations')[user.locale]);
+        tropo.say(message.get('translations')[user.locale]);
     });
 
     userModel.set('lastMessage', messagesCollection.length-1);
