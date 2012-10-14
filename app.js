@@ -109,6 +109,9 @@ app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
 
+    
+    var phoneNumber = req.body.session.from.id;
+
     // on call start, add phone user to users collection
     appController.trigger('_userSessionStarted', {
         id: phoneNumber,
