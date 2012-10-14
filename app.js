@@ -102,6 +102,9 @@ app.post('/listen', function(req, res){
 
     tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
 
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
+    
+
     res.send(TropoJSON(tropo));
  
 });
@@ -120,8 +123,7 @@ app.post('/record', function (req,res) {
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
-
-    tropo.on('incomplete', null, '/hangup?id='+phoneNumber, true);
+    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
 });
