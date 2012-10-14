@@ -102,20 +102,8 @@ app.post('/listen', function(req, res){
 
     tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
 
-    tropo.on('error', null, '/hangup?id='+phoneNumber, true);
-
     res.send(TropoJSON(tropo));
  
-});
-
-app.post('/hangup', function (req,res) {
-    var tropo = new TropoWebAPI();
-
-    var phoneNumber = req.query.id;
-
-    console.log('HANGUP', phoneNumber);
-
-    res.send(TropoJSON(tropo));
 });
 
 app.post('/record', function (req,res) {
@@ -130,6 +118,9 @@ app.post('/record', function (req,res) {
     tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
+
+
+    tropo.on('incomplete', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
 });
@@ -158,6 +149,16 @@ app.post('/messages', function (req,res) {
     userModel.set('lastMessage', messagesCollection.length-1);
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
+
+    res.send(TropoJSON(tropo));
+});
+
+app.post('/hangup', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    var phoneNumber = req.query.id;
+
+    console.log('HANGUP', phoneNumber);
 
     res.send(TropoJSON(tropo));
 });
