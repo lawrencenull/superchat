@@ -104,7 +104,10 @@ app.post('/initialize', function (req, res) {
         }
     });
 
-    tropo.say('');
+    var say = new Say('');
+    var choices = new Choices(null, null, '#');
+
+    tropo.ask(choices, null, null, null, 'pause', null, null, say, 1, null);
 
 
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
