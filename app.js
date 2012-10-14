@@ -78,7 +78,7 @@ res.end(TropoJSON(tropo));
 });
 
 
-app.get('/', routes.index);  
+app.get('/', routes.index);
 app.get('/users', user.list);
 
 
