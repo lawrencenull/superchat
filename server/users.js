@@ -8,6 +8,7 @@ exports.init = function(d) {
   var UserModel = Backbone.Model.extend({
     defaults: {
       'name': 'New User',
+      'locale': 'en',
       'image': {
         'data': '/images/default-user-image.gif'
       },
