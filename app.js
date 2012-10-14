@@ -65,6 +65,8 @@ app.configure('development', function () {
 app.post('/tropo', function (req,res,next) {
     var tropo = new TropoWebAPI();
 
+    console.log(tropo_webapi.TropoJSON(tropo));
+
     var phoneNumber = req.body.session.from.id;
 
     // on call start, add phone user to users collection
