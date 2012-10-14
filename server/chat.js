@@ -30,8 +30,10 @@ exports.init = function(d) {
     		
     		this.on('messageAdded', function (message) {
 
-                message.translations = t.translateMessage(message);
-                t.messagesCollection.add(message);
+                t.translateMessage(message, function(translations) {
+                    message.translations = translations;
+                    t.messagesCollection.add(message);
+                });
 
     		});
 
@@ -59,16 +61,14 @@ exports.init = function(d) {
             } else if (data.id) {
                 console.log('UPDATE CHAT CONTROLLER', data);
                 var messageModel = t.messagesCollection.get(data.id);
-                data.translations = t.translateMessage(messageModel);
-                messageModel.update(data);
+                t.translateMessage(messageModel, function(translations) {
+                    data.translations = translations;
+                    messageModel.update(data);
+                });
             }
         },
-        translateMessage: function (message) {
-            message.translations = {
-                'en': '',
-                'es': ''
-            };
-
+        translateMessage: function (message, callback) {
+            message.translations = {};
             message.translations[message.user.locale] = message.message;
 
             var newLocale;
@@ -81,7 +81,7 @@ exports.init = function(d) {
 
             translate({key: 'AIzaSyATZ3oimk5pfHC1Oe94UAZABoLRb7bQoDU', q: message.message, source: message.user.locale, target: newLocale}, function(result) {
                 message.translations[newLocale] = result[message.message];
-                return message.translations;
+                callback(message.translations);
             });
         }
     });
