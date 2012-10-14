@@ -143,7 +143,6 @@ app.post('/messages', function (req,res) {
 
     console.log(messagesSinceLastMessage);
 
-    //messagesSinceLastMessage.each(function (message) {
     _.each(messagesSinceLastMessage, function (message) {
         console.log('a message since last message', message.toJSON());
         tropo.say(message.get('message'));
@@ -153,7 +152,7 @@ app.post('/messages', function (req,res) {
 
     tropo.on('continue', null, '/listen?id='+phoneNumber, null);
 
-    
+
     tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
 
     res.send(TropoJSON(tropo));
@@ -165,6 +164,8 @@ app.post('/hangup', function (req,res) {
     var phoneNumber = req.query.id;
 
     console.log('HANGUP', phoneNumber);
+
+    appController.usersController.remove({id:phoneNumber});
 
     res.send(TropoJSON(tropo));
 });
