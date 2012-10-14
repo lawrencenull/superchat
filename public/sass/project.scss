@@ -46,7 +46,7 @@ h1, h2, h3{
     border:4px dashed red;
 }
 .dragover {
-  background-color: orange;  
+  background-color: lighten($mainColor, 30%);  
 }
 
 #users-list {
@@ -72,8 +72,7 @@ h1, h2, h3{
     font-weight: bold;
 }
 #users-list .self .name:after {
-    content: " Thats you!";
-    font-weight: normal;
+
 }
 #users-list .self img {
     cursor: pointer;

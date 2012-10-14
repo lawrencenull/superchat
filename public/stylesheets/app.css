@@ -5011,7 +5011,7 @@ h1, h2, h3 {
 
 /* line 48, ../sass/project.scss */
 .dragover {
-  background-color: orange;
+  background-color: #a3dbec;
 }
 
 /* line 52, ../sass/project.scss */
@@ -5064,23 +5064,17 @@ h1, h2, h3 {
   font-weight: bold;
 }
 
-/* line 74, ../sass/project.scss */
-#users-list .self .name:after {
-  content: " Thats you!";
-  font-weight: normal;
-}
-
-/* line 78, ../sass/project.scss */
+/* line 77, ../sass/project.scss */
 #users-list .self img {
   cursor: pointer;
 }
 
-/* line 81, ../sass/project.scss */
+/* line 80, ../sass/project.scss */
 #users-list .self img:hover {
   opacity: .7;
 }
 
-/* line 85, ../sass/project.scss */
+/* line 84, ../sass/project.scss */
 #chat .chat-box {
   position: fixed;
   padding: 5px;
@@ -5089,13 +5083,13 @@ h1, h2, h3 {
   left: 0px;
   width: 100%;
 }
-/* line 92, ../sass/project.scss */
+/* line 91, ../sass/project.scss */
 #chat .chat-box input[type="text"] {
   margin: 0px;
   color: black;
 }
 
-/* line 98, ../sass/project.scss */
+/* line 97, ../sass/project.scss */
 #chat-messages-list {
   border: 1px solid #999;
   height: 400px;
@@ -5106,56 +5100,56 @@ h1, h2, h3 {
   width: 99.9%;
 }
 
-/* line 107, ../sass/project.scss */
+/* line 106, ../sass/project.scss */
 #chat-messages-list > li {
   background-color: #deffe0;
   height: 100px;
   padding: 5px;
 }
 
-/* line 112, ../sass/project.scss */
+/* line 111, ../sass/project.scss */
 #chat-messages-list > li:nth-child(odd) {
   background-color: #a9ffad;
 }
 
-/* line 115, ../sass/project.scss */
+/* line 114, ../sass/project.scss */
 #chat-messages-list > li.self {
   background-color: yellow;
 }
 
-/* line 118, ../sass/project.scss */
+/* line 117, ../sass/project.scss */
 #chat-messages-list > li:nth-child(odd).self {
   background-color: #faffd3;
 }
 
-/* line 121, ../sass/project.scss */
+/* line 120, ../sass/project.scss */
 #chat-messages-list > li > .user {
   font-weight: bold;
 }
 
-/* line 124, ../sass/project.scss */
+/* line 123, ../sass/project.scss */
 #chat-messages-list > li > .user:after {
   content: ':';
 }
 
-/* line 128, ../sass/project.scss */
+/* line 127, ../sass/project.scss */
 #webcam,
 #webcam-feed {
   margin-top: 50px;
   display: none;
 }
 
-/* line 132, ../sass/project.scss */
+/* line 131, ../sass/project.scss */
 #webcam.open {
   display: block;
 }
 
-/* line 135, ../sass/project.scss */
+/* line 134, ../sass/project.scss */
 #snapshot {
   display: block;
 }
 
-/* line 138, ../sass/project.scss */
+/* line 137, ../sass/project.scss */
 ul#files-list {
   list-style-type: none;
 }
