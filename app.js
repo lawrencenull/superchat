@@ -75,7 +75,7 @@ app.post('/tropo', function(req, res){
         }
     });
 
-    var say = new Say('Press one for English. Para Espanol, Oprima El Dos.');
+    var say = new Say('/greeting.mp3');
     var choices = new Choices('1,2');
 
     tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
