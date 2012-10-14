@@ -164,12 +164,13 @@ app.post('/listen', function(req, res){
 app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
 
+    tropo.say('Woo hoo you made it to record');
 
     //var phoneNumber = req.body.session.from.id;
 
     //var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
-    var choices = new Choices(null,null,'#')
-    tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, null, 10.0, null, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+    //var choices = new Choices(null,null,'#')
+    //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, null, 10.0, null, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
     tropo.on('continue', null, '/messages', true);
 
