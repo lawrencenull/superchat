@@ -108,46 +108,73 @@ app.post('/route', function (req,res) {
 app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
+
+    // on call start, add phone user to users collection
+    appController.trigger('_userSessionStarted', {
+        id: phoneNumber,
+        image: {
+            data: '/images/default-phone-image.gif'
+        }
+    });
      
-    var say = new Say("Record or listen?");
-    var choices = new Choices("record, listen");
+    var say = new Say("Welcome. Hit asterisk to record a new message.");
+    //var choices = new Choices("record, listen");
  
     // (choices, attempts, bargein, minConfidence, name, recognizer, required, say, timeout, voice);
      
-    tropo.ask(choices, null, null, null, "route", null, null, say, 60, null);
+    //tropo.ask(choices, null, null, null, "route", null, null, say, 60, null);
      
-    tropo.on("continue", null, "/continue", true);
+    tropo.on("continue", null, "/listen", true);
      
     res.send(TropoJSON(tropo));
      
 });
  
-app.post('/continue', function(req, res, next){
+app.post('/listen', function(req, res){
      
     var tropo = new TropoWebAPI();
  
-    var answer = req.body['result']['actions']['value'];
+    //var answer = req.body['result']['actions']['value'];
      
-    console.log(answer);
+    var choices = new Choices('*');
 
-    res.writeHead(200, {
-      'Location': '/'+answer
-    });
-    res.end();
+    tropo.ask(choices, null, null, null, 'poll', null, null, null, 5, null);
 
-//    res.send(TropoJSON(tropo));
- 
-});
+    tropo.on('continue', null, '/record', true);
 
-app.post('/listen', function (req,res) {
-    var tropo = new TropoWebAPI();
-    console.log('entered listen');
+    tropo.on('timeout', null, '/messages', true);
+
+    /*if (answer === 'record') {
+        // record user text
+        var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+        var choices = new Choices(null,null,'#')
+        tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+
+    } else if (answer === 'listen') {
+        tropo.on('continue', null, '/continue', true);
+    }*/
+
     res.send(TropoJSON(tropo));
+ 
 });
 
 app.post('/record', function (req,res) {
     var tropo = new TropoWebAPI();
-    console.log('entered record');
+
+    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+    var choices = new Choices(null,null,'#')
+    tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, null, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+
+    tropo.on('continue', null, '/messages', true);
+
+    res.send(TropoJSON(tropo));
+});
+
+app.post('/messages', function (req,res) {
+    var tropo = new TropoWebAPI();
+
+    tropo.say('This was a test message');
+
     res.send(TropoJSON(tropo));
 });
 
