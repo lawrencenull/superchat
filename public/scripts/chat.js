@@ -32,7 +32,7 @@ var ChatMessagesListView = Backbone.View.extend({
 
         message.translation = message.translations[self.locale];
 
-        console.log(message);
+        alert('render');
         return Mustache.render(this.template, message);
     },
     add: function (message) {
