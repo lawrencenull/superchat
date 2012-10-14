@@ -72,7 +72,7 @@ app.post('/tropo', function(req, res){
     appController.trigger('_userSessionStarted', {
         id: phoneNumber,
         image: {
-            data: '/images/default-phone-image.gif'
+            'data': '/images/default-phone-image.gif'
         }
     });
      
@@ -251,9 +251,7 @@ var AppController = Backbone.Model.extend({
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
             t.message(user.id, 'getAllMessages', chatController.render());
-            usersController.add({
-                id: user.id
-            });
+            usersController.add(user);
         });
         this.on('_userSessionEnded', function (user) {
             usersController.remove(user);

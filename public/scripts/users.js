@@ -1,9 +1,6 @@
 var UserModel = Backbone.Model.extend({
     defaults: {
-        'name': 'Anonymous',
-        'image': {
-            'data': '/images/default-user-image.gif'
-        }
+        'name': 'Anonymous'
     },
         initialize: function () {
     }
