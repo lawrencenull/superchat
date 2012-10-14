@@ -42,6 +42,7 @@ exports.init = function(d) {
             return this.messagesCollection.toJSON();
         },
         update: function (data, params) {
+            var t = this;
             if (params && params.type === 'user') {
                 var messageModels = this.messagesCollection.each(function (model) {
                     if (model.toJSON().user.id === data.id) {
