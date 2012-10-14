@@ -63,20 +63,36 @@ app.configure('development', function () {
 
 
 app.post('/tropo', function (req,res,next) {
+    var tropo = new TropoWebAPI();
 
-var phoneNumber = req.body.session.from.id;
+    var phoneNumber = req.body.session.from.id;
 
-appController.trigger('_userSessionStarted', { id: phoneNumber });
+    // on call start, add phone user to users collection
+    appController.trigger('_userSessionStarted', {
+        id: phoneNumber,
+        image: {
+            data: '/images/default-phone-image.gif'
+        }
+    });
 
-var tropo = new TropoWebAPI();
-var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
-var say = new Say("Hello, how are you?");
-var choices = new Choices(null,null,'#')
+    // on call end, remove phone user from user collection
+    tropo.on("hangup", function () {
+        console.log('HANGUP');
+        
+        appController.trigger('_userSessionEnded', {
+            id: phoneNumber;
+        });
+    });
 
-tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
+    // record user text
+    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+    var say = new Say("Hello, how are you?");
+    var choices = new Choices(null,null,'#')
+    tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
-res.end(TropoJSON(tropo));
 
+
+    res.end(TropoJSON(tropo));
 });
 
 
