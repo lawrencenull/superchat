@@ -75,8 +75,6 @@ app.post('/tropo', function (req,res,next) {
         }
     });
 
-    console.log(TropoJSON(tropo));
-
     // on call end, remove phone user from user collection
     tropo.on('hangup', function() {
         console.log('HANGUP');
@@ -96,6 +94,9 @@ app.post('/tropo', function (req,res,next) {
     tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
 
 
+    req.on('end', function () {
+        console.log('CALL ENDED');
+    });
 
     res.end(TropoJSON(tropo));
 });
