@@ -192,13 +192,15 @@ app.post('/messages', function (req,res) {
     var user = userModel.toJSON();
 
     var messagesCollection = appController.chatController.messagesCollection;
-    var messagesSinceLastMessage = messagesCollection.filter(function (message) {
-        return message.id > user.lastMessage;
+    var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
+        console.log(arguments);
+        return index > user.lastMessage;
     });
 
     console.log(messagesSinceLastMessage);
 
-    messagesSinceLastMessage.each(function (message) {
+    //messagesSinceLastMessage.each(function (message) {
+    _.each(messagesSinceLastMessage, function (message) {
         console.log('a message since last message', message.toJSON());
         tropo.say(message.get('message'));
     });
