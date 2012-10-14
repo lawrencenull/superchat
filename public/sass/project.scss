@@ -1,0 +1,139 @@
+@import url(http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope);
+
+
+
+body{
+    padding-top:45px;
+}
+
+nav.top-bar{
+    ul{
+        ul{
+            li{
+                &.name{
+                    h1{
+                        a{
+                            //margin-top:10px;
+                            font-family: 'Annie Use Your Telescope', cursive;
+                            font-size:40px;
+                            &:hover{
+                                color:white;
+                            }
+                        }
+                    }
+                }
+            }           
+        }
+    }
+
+}
+
+
+
+h1, h2, h3{
+    color:lighten(black, 70%);
+    font-family: 'Annie Use Your Telescope', cursive;
+}
+.hide {
+    display: none !important;
+}
+.show {
+    display: none !important;
+    width: 100%;
+    background-color: #555;
+}
+#dropzone {
+    border:4px dashed red;
+}
+.dragover {
+  background-color: lighten($mainColor, 30%);  
+}
+
+#users-list {
+    margin-bottom:80px;
+    @include clearfix();
+    list-style: none;
+}
+#users-list li {
+    text-align: left;
+    height: 100px;
+    @include clearfix();
+}
+#chat-messages-list img{
+    float: left;
+    height: 100%;
+    margin-right: 10px;
+}
+#users-list img {
+    float: left;
+    margin-right: 10px;
+}
+#users-list .self .name {
+    font-weight: bold;
+}
+#users-list .self .name:after {
+
+}
+#users-list .self img {
+    cursor: pointer;
+}
+#users-list .self img:hover {
+    opacity: .7;
+}
+#chat{
+    .chat-box{
+    position:fixed;
+    padding:5px;
+    background-color:lighten(black, 90%);
+    bottom:0px;
+    left:0px;
+    width:100%;
+        input[type="text"]{
+            margin:0px;
+            color:black;
+        }
+    }
+}
+#chat-messages-list {
+    border: 1px solid #999;
+    height: 400px;
+    overflow: scroll;
+    margin: 1em 0;
+    list-style-type: none;
+    text-align: left;
+    width: 99.9%;
+}
+#chat-messages-list > li {
+    background-color: #deffe0;
+    height: 100px;
+    padding: 5px;
+}
+#chat-messages-list > li:nth-child(odd) {
+    background-color: #a9ffad;
+}
+#chat-messages-list > li.self {
+    background-color: yellow;
+}
+#chat-messages-list > li:nth-child(odd).self {
+    background-color: #faffd3;
+}
+#chat-messages-list > li > .user {
+    font-weight: bold;
+}
+#chat-messages-list > li > .user:after {
+    content: ':';
+}
+#webcam,
+#webcam-feed {
+    margin-top:50px;
+    display: none;
+}
+#webcam.open {
+    display: block;
+}
+#snapshot {
+    display: block;
+}
+ul#files-list{
+    list-style-type: none;
+}
