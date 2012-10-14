@@ -157,17 +157,18 @@ app.post('/record', function (req,res) {
 app.post('/upload', function (req,res) {
 
     var phoneNumber = req.query.id;
+    var userModel = appController.usersController.usersCollection.get(phoneNumber);
+    var user = userModel.toJSON();
+
     var fileName = req.files.filename.name;
 
     fs.readFile(req.files.filename.path, function (err, data) {
+        
       var newPath = __dirname + "/public/recordings/" + fileName;
-      console.log(newPath);
       fs.writeFile(newPath, data, function (err) {
 
         appController.trigger('_chatMessageAdded', {
-            user: {
-                id: phoneNumber
-            },
+            user: user,
             message: '(Transcribing audio...)',
             file: '/recordings/'+fileName
         });
