@@ -65,11 +65,17 @@ app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
 
-    var phoneNumber = req.body.session.from.id;     
+    var phoneNumber = req.body.session.from.id;
 
-    var say = new Say('Press one for English. Para Espanol, Oprima El Dos.')
-    //tropo.say("Welcome. Hit pound at any time to record a new message.");
+    appController.trigger('_userSessionStarted', {
+        id: phoneNumber,
+        locale: 'en',
+        image: {
+            'data': '/images/default-phone-image.gif'
+        }
+    });
 
+    var say = new Say('Press one for English. Para Espanol, Oprima El Dos.');
     var choices = new Choices('1,2');
 
     tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
@@ -89,23 +95,12 @@ app.post('/listen', function(req, res){
     var phoneNumber = req.query.id;
     var localeDigit = req.body['result']['actions']['value'];
     
-    if (localeDigit === '1' || localeDigit === '2') {
-        console.log(localeDigit);
-        var locale = 'en';
-        if (localeDigit === '2') {
-            locale = 'sp';
-        }
-
-        // on call start, add phone user to users collection
-        appController.trigger('_userSessionStarted', {
-            id: phoneNumber,
-            locale: locale,
-            image: {
-                'data': '/images/default-phone-image.gif'
-            }
-        });
-    }
-    
+    if (localeDigit === '2') {
+        console.log('TWO');
+        var user = appController.chatController.get(phoneNumber).toJSON();
+        user.locale = 'sp';
+        appController.trigger('_userUpdated', user);
+    }    
 
     var say = new Say('');
     var choices = new Choices(null, null, '#');
