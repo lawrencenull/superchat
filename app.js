@@ -139,7 +139,7 @@ app.post('/listen', function(req, res){
  
     //var answer = req.body['result']['actions']['value'];
      
-    var choices = new Choices('#');
+    var choices = new Choices(null, null, '#');
 
     tropo.ask(choices, null, null, null, 'poll', null, null, null, 5, null);
 
