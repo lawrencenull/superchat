@@ -312,6 +312,10 @@ var AppController = Backbone.Model.extend({
             chatController.trigger('messageAdded', message);
         });
 
+        this.on('_chatMessageUpdated', function (message) {
+            chatController.trigger('chatMessageUpdated', message);
+        });
+
         chatController.on('_chatMessageAdded', function (message) {
                         console.log('chat message added', message);
             t.notify('chatMessageAdded', message);
