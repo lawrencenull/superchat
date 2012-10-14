@@ -130,11 +130,7 @@ app.post('/continue', function(req, res){
      
     console.log(answer);
 
-    if (answer === 'listen') {
-        res.redirect('/listen');
-    } else if (answer === 'record') {
-        res.redirect('/record');
-    }
+    res.redirect('/'+answer);
          
     res.send(TropoJSON(tropo));
  
