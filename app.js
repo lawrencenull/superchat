@@ -62,6 +62,19 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
+app.get('/recordings', function (req,res) {
+   fs.readdir(__dirname+'/public/recordings', function () { res.send(renderFolder(arguments)  );  }  );  
+});
+
+renderFolder = function (s) {
+console.log(arguments);
+var send = '';
+_.each(arguments[0][1], function (file) {
+send += '<audio controls="controls"><source src="/recordings/'+file+'" type="audio/mpeg" /></audio>';
+});
+return send;
+};
+
 app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
