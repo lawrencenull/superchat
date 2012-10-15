@@ -11,7 +11,7 @@
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width" />
 
-    <title>Welcome to Foundation</title>
+    <title>superchat!</title>
 
     <!-- Included CSS Files -->
     <link rel="stylesheet" href="/stylesheets/app.css">
@@ -27,7 +27,7 @@
 <nav class="top-bar fixed">
     <ul>
         <ul>
-            <li class="name"><h1><a href="#">whiteboard!</a></h1></li>
+            <li class="name"><h1><a href="#">SuPerChat!</a></h1></li>
             <li class="toggle-topbar"><a href="#"></a></li>
         </ul>  
     </ul>
@@ -87,7 +87,13 @@
                     <img src="{{image.data}}">
                 </a>
             {{/image}}
-            <span class="name">{{name}}</span><p class="locale">{{locale}}</div>
+            <span class="name">{{name}}</span>
+            {{#self}}<select class="locale">
+                <option value="en"{{#en}} selected="selected"{{/en}}>English</option>
+                <option value="es"{{#es}} selected="selected"{{/es}}>Espanol</option>
+            </select>{{/self}}
+            {{^self}}<p>{{locale}}</p>{{/self}}
+        </div>
 
         </li>
     </script>
@@ -99,7 +105,7 @@
             {{#file}}
                 <audio controls="controls"><source src="{{file}}" type="audio/mpeg"></source></audio>
             {{/file}}
-            <p>{{translation}}</p>
+            <p title="{{message}}">{{translation}}</p>
         </li>
     </script>
 

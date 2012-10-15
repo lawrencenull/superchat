@@ -23,16 +23,22 @@ var UsersListView = Backbone.View.extend({
             };
             this.trigger('_update', user);
         },
-        'click .self .locale': function (e) {
+        'change .self .locale': function (e) {
             var user = {
                 id: $(e.target).closest('.user').attr('data-id'),
-                locale: prompt("What's your locale?")
+                locale: $(e.target).val()
             };
             this.trigger('_update', user);
         }
     },
     template: (function () { return $('#template-user').html() }()),
     render: function (user) {
+        var t = this;
+        if (this.locale) {
+            user[this.locale] = true;
+        } else {
+            user[this.$el.find('#user-'+user.id).find('.locale').val()] = true;
+        }
         return Mustache.render(this.template, user);
     },
     add: function (user) {
@@ -74,6 +80,12 @@ var UsersController = Backbone.Controller.extend({
 
         usersCollection.on('change', function (user) {
             usersListView.update(user.toJSON());
+        });
+
+        usersCollection.on('change:locale', function (user) {
+            if (user.get('self')) {
+                t.trigger('_localeUpdate', user.toJSON());
+            }
         });
 
     },

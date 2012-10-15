@@ -28,11 +28,17 @@ var ChatMessagesListView = Backbone.View.extend({
     template: $('#template-chat-message').html(),
     render: function (message) {
         console.log(message.user.locale);
-        var self = appController.usersController.usersCollection.where({self:true})[0].toJSON();
+        var self = appController.usersController.usersCollection.where({self:true});
 
-        message.translation = message.translations[self.locale];
+        if (self.length > 0) {
+            // if self exists (after page load)
+            self = self[0].toJSON();
+            message.translation = message.translations[self.locale];
+        } else {
+            // show original message (if on initial load)
+            message.translation = message.message;
+        }        
 
-        alert('render');
         return Mustache.render(this.template, message);
     },
     add: function (message) {
@@ -92,5 +98,11 @@ var ChatController = Backbone.Controller.extend({
         if (model) {
             model.update(message);
         }
+    },
+    renderAll: function () {
+        var t = this;
+        this.chatCollection.each(function (chat) {
+            t.chatMessagesListView.update(chat.toJSON());
+        });
     }
 });

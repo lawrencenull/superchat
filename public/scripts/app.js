@@ -47,6 +47,12 @@ var AppController = Backbone.Controller.extend({
             socket.emit('userUpdated', user);
         });
 
+        usersController.on('_localeUpdate', function (user) {
+            if (user.self) {
+                chatController.renderAll();
+            }
+        });
+
         chatController.on('_chatMessageAdded', function (message) {
             if (!message.user) {// || (message.user && message.user.id !== socket.socket.sessionid) ) {
                 message.user = usersController.get(socket.socket.sessionid);
