@@ -155,7 +155,7 @@ app.post('/record', function (req,res) {
 
     console.log('TROPO RECOGNIZER', user.recognizer);
 
-    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call"};
+    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call?locale="+user.locale};
     var choices = new Choices(null,null,'#');
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
     tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", user.recognizer, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
@@ -405,16 +405,22 @@ appController = new AppController();
 
 app.post('/call', function (req, res) { 
     var tropo = new TropoWebAPI();
+
+    console.log('TRANSCRIPTION', req.body.result);
+
     var phoneNumber = req.body.result.identifier;
+    var locale = req.query.locale;
 
-    /*var user = appController.usersController.usersCollection.get(phoneNumber);
-    if (user.length > 0) {
-        user = user[0].toJSON();
+    var user = appController.usersController.usersCollection.get(phoneNumber);
+
+    if (user) {
+        user = user.toJSON();
     } else {
-        user = { id: phoneNumber };
-    }*/
-
-    var user = appController.usersController.usersCollection.get(phoneNumber).toJSON();
+        user = {
+            id: phoneNumber,
+            locale: locale
+        };
+    }
 
     var messagesCollection = appController.chatController.messagesCollection;
     var userMessagesCollection = messagesCollection.filter(function (message, index) {
