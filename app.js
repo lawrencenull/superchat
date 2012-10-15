@@ -357,7 +357,7 @@ var AppController = Backbone.Model.extend({
         });
 
         this.on('_chatMessageUpdated', function (message) {
-            chatController.trigger('chatMessageUpdated', message);
+            chatController.update(message);
         });
 
         chatController.on('_chatMessageAdded', function (message) {
