@@ -103,7 +103,7 @@
             <img src="{{user.image.data}}"></img>
             <span class="user">{{#user.self}}You{{/user.self}}{{^user.self}}{{user.name}}{{/user.self}}</span>
             {{#file}}
-                <audio controls="controls"><source src="{{file}}" type="audio/mpeg"></source></audio>
+                <audio controls="controls"><source src="/recordings/{{file}}" type="audio/mpeg"></source></audio>
             {{/file}}
             <p title="{{message}}">{{#file}}{{^transcribed}}(Transcribing audio...){{/transcribed}}{{/file}}{{^file}}{{translation}}{{/file}} {{#file}}{{#transcribed}}<span class="transcription">{{translation}}</span> <a href="#" class="fix">(Fix transcription?)</a>{{/transcribed}}{{/file}}</p>
         </li>

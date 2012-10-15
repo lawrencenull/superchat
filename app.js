@@ -62,19 +62,6 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
-app.get('/recordings', function (req,res) {
-   fs.readdir(__dirname+'/public/recordings', function () { res.send(renderFolder(arguments)  );  }  );  
-});
-
-renderFolder = function (s) {
-console.log(arguments);
-var send = '';
-_.each(arguments[0][1], function (file) {
-send += '<audio controls="controls"><source src="/recordings/'+file+'" type="audio/mpeg" /></audio>';
-});
-return send;
-};
-
 app.post('/tropo', function(req, res){
      
     var tropo = new TropoWebAPI();
@@ -171,10 +158,9 @@ app.post('/record', function (req,res) {
 app.post('/upload', function (req,res) {
 
     var phoneNumber = req.query.id;
+    var fileName = req.query.fileID;
     var userModel = appController.usersController.usersCollection.get(phoneNumber);
     var user = userModel.toJSON();
-
-    var fileName = req.files.filename.name;
 
     fs.readFile(req.files.filename.path, function (err, data) {
 
@@ -186,7 +172,7 @@ app.post('/upload', function (req,res) {
             message: '',
             translations: {},
             transcribed: false,
-            file: '/recordings/'+fileName
+            file: fileName
         });
 
         res.redirect("back");
@@ -438,7 +424,7 @@ app.post('/call', function (req, res) {
         message.transcribed = true;
 
         appController.chatController.update(message); 
-        
+
     } else {
         console.log('TRANSCRIPTION FAILURE');
     }
