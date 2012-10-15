@@ -85,6 +85,7 @@ var ChatController = Backbone.Controller.extend({
             t.requestNotificationsPermission();
         });
         chatMessagesListView.on('_update', function (user) {
+            console.log('chatMessagesListView.on(_update');
             t.edit(user);
         });
         this.checkNotificationPermissionStatus();
@@ -117,6 +118,7 @@ var ChatController = Backbone.Controller.extend({
         _.each(message, function (value, attribute) {
             messageModel[attribute] = value;
         });
+        console.log('chatController.edit');
         t.trigger('_messageUpdated', messageModel);
     },
     renderAll: function () {
