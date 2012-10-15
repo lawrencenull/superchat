@@ -105,7 +105,7 @@
             {{#file}}
                 <audio controls="controls"><source src="{{file}}" type="audio/mpeg"></source></audio>
             {{/file}}
-            <p title="{{message}}">{{translation}}</p>
+            <p title="{{message}}">{{#file}}{{^transcribed}}(Transcribing audio...){{/transcribed}}{{/file}}{{^file}}{{translation}}{{/file}} {{#file}}{{#transcribed}}{{translation}} <a href="#" class="fix">(Fix transcription?)</a>{{/transcribed}}{{/file}}</p>
         </li>
     </script>
 
