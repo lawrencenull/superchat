@@ -429,15 +429,21 @@ app.post('/call', function (req, res) {
         return message.get('user').id === phoneNumber;
     });*/
 
-    var messageCollection = appController.chatController.messagesCollection;.filter(function (message, index) {
-        return message.get('file') === fileID;
-    });
+    var messageModel = appController.chatController.messagesCollection.where({ file: fileID });
 
-    var message = _.last(messageCollection).toJSON();
-    message.message = req.body.result.transcription;
-    message.transcribed = true;
+    if (messageModel.length > 0) {
+        
+        var message = messageModel[0].toJSON();
+        message.message = req.body.result.transcription;
+        message.transcribed = true;
 
-    appController.chatController.update(message); 
+        appController.chatController.update(message); 
+        
+    } else {
+        console.log('TRANSCRIPTION FAILURE');
+    }
+
+    
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
      
     res.send(TropoJSON(tropo));
