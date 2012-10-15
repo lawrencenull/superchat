@@ -456,6 +456,7 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_chatMessageAdded', data);
     });
     socket.on('chatMessageUpdated', function (data) {
+        console.log('message updated from client!!!!!!!!!!!!');
         appController.trigger('_chatMessageUpdated', data);
     });
     socket.on('reloadRequest', function (data) {
