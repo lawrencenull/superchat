@@ -150,15 +150,16 @@ app.post('/record', function (req,res) {
     var phoneNumber = req.query.id;
     var userModel = appController.usersController.usersCollection.get(phoneNumber);
     var user = userModel.toJSON();
+    var fileID = phoneNumber+"-"+new Date().getUTCMilliseconds();
 
     var say = new Say('Press pound after recording your message.');
 
     console.log('TROPO RECOGNIZER', user.recognizer);
 
-    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call?locale="+user.locale};
+    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call?fileID="+fileID+"&locale="+user.locale};
     var choices = new Choices(null,null,'#');
     //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", user.recognizer, say, 5, transcription, "http://54.243.182.246:3000/upload?id="+phoneNumber, null, null);
+    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", user.recognizer, say, 5, transcription, "http://54.243.182.246:3000/upload"+fileID+"?id="+phoneNumber, null, null);
 
     tropo.on('continue', null, '/messages?id='+phoneNumber, true);
 
@@ -410,8 +411,9 @@ app.post('/call', function (req, res) {
 
     var phoneNumber = req.body.result.identifier;
     var locale = req.query.locale;
+    var fileID = req.query.fileID;
 
-    var user = appController.usersController.usersCollection.get(phoneNumber);
+    /*var user = appController.usersController.usersCollection.get(phoneNumber);
 
     if (user) {
         user = user.toJSON();
@@ -425,9 +427,13 @@ app.post('/call', function (req, res) {
     var messagesCollection = appController.chatController.messagesCollection;
     var userMessagesCollection = messagesCollection.filter(function (message, index) {
         return message.get('user').id === phoneNumber;
+    });*/
+
+    var messageCollection = messagesCollection.filter(function (message, index) {
+        return message.get('file') === fileID;
     });
 
-    var message = _.last(userMessagesCollection).toJSON();
+    var message = _.last(messageCollection).toJSON();
     message.message = req.body.result.transcription;
     message.transcribed = true;
 
