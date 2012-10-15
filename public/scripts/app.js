@@ -53,6 +53,10 @@ var AppController = Backbone.Controller.extend({
             }
         });
 
+        chatController.on('_messageUpdated', function (message) {
+            socket.emit('chatMessageUpdated', message);
+        });
+
         chatController.on('_chatMessageAdded', function (message) {
             if (!message.user) {// || (message.user && message.user.id !== socket.socket.sessionid) ) {
                 message.user = usersController.get(socket.socket.sessionid);

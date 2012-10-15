@@ -23,6 +23,15 @@ var ChatMessagesListView = Backbone.View.extend({
         'click #request-chat-notifications-permission': function (e) {
             e.preventDefault();
             this.trigger('_requestNotificationsPermission');
+        },
+        'click .fix': function (e) {
+            var transcription = $(e.target).siblings('.transcription').text();
+            var fixed = prompt('Please fix: "' + transcription + '"');
+            var message = {
+                id: $(e.target).closest('.message').attr('data-id'),
+                message: fixed
+            };
+            this.trigger('_update', message);
         }
     },
     template: $('#template-chat-message').html(),
@@ -75,6 +84,9 @@ var ChatController = Backbone.Controller.extend({
         chatMessagesListView.on('_requestNotificationsPermission', function () {
             t.requestNotificationsPermission();
         });
+        chatMessagesListView.on('_update', function (user) {
+            t.edit(user);
+        });
         this.checkNotificationPermissionStatus();
     },
     requestNotificationsPermission: function () {
@@ -98,6 +110,14 @@ var ChatController = Backbone.Controller.extend({
         if (model) {
             model.update(message);
         }
+    },
+    edit: function (message) {
+        var t = this;
+        var messageModel = t.chatCollection.where({id:message.id})[0].toJSON();
+        _.each(user, function (value, attribute) {
+            messageModel[attribute] = value;
+        });
+        t.trigger('_messageUpdated', messageModel);
     },
     renderAll: function () {
         var t = this;
