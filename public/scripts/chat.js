@@ -114,7 +114,7 @@ var ChatController = Backbone.Controller.extend({
     edit: function (message) {
         var t = this;
         var messageModel = t.chatCollection.where({id:message.id})[0].toJSON();
-        _.each(user, function (value, attribute) {
+        _.each(message, function (value, attribute) {
             messageModel[attribute] = value;
         });
         t.trigger('_messageUpdated', messageModel);
