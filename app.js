@@ -129,7 +129,7 @@ app.post('/listen', function(req, res){
     var say = new Say('');
     var choices = new Choices(null, null, '#');
 
-    tropo.ask(choices, null, null, null, 'poll', null, null, say, 30, null);
+    tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
 
     tropo.on('continue', null, '/record?id='+phoneNumber, true);
 
@@ -182,8 +182,9 @@ app.post('/upload', function (req,res) {
 
         appController.trigger('_chatMessageAdded', {
             user: user,
-            message: '(Transcribing audio...)',
+            message: '',
             translations: {},
+            transcribed: false,
             file: '/recordings/'+fileName
         });
 
@@ -420,13 +421,9 @@ app.post('/call', function (req, res) {
         return message.get('user').id === phoneNumber;
     });
 
-    console.log(userMessagesCollection);
-
     var message = _.last(userMessagesCollection).toJSON();
     message.message = req.body.result.transcription;
-
-    console.log(message);
-    console.log(req.body.result.transcription);
+    message.transcribed = true;
 
     appController.chatController.update(message); 
     tropo.on("continue", null, "/listen?id="+phoneNumber, true);
