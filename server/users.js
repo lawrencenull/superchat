@@ -3,7 +3,8 @@
 exports.init = function(d) {
 
   var _ = d._
-    , Backbone = d.Backbone;
+    , Backbone = d.Backbone,
+    fs = d.fs;
 
   var UserModel = Backbone.Model.extend({
     defaults: {
@@ -18,6 +19,19 @@ exports.init = function(d) {
       if (this.get('name') === this.defaults.name) {
         this.set('name', 'anon_' + this.id);
       }
+      this.on('add') = uploadImage;
+      this.on('update:image') = uploadImage;
+    },
+    uploadImage: function (model) {
+      var file = this.convertFileToBinary(model.get('image').data),
+          path = './public/files/users/'+model.get('id');
+      fs.writeFile(path, data, function (error) {
+        if (error) {
+            t.trigger('writeToDisk', { success: false, error: error, file: file } );
+        } else {
+            t.trigger('writeToDisk', { success: true, file: file });
+            t.set('image', {path: path});
+        }
     }
   });
 
