@@ -84,7 +84,7 @@
         <div class="{{#self}}callout{{/self}}">
             {{#image}}
                 <a class="th">
-                    <img src="{{image.data}}">
+                    {{#image.path}}<img src="{{#image.path}}/files/users/images/{{image.path}}{{/image.path}}">{{/image.path}}
                 </a>
             {{/image}}
             <span class="name">{{name}}</span>
@@ -100,7 +100,7 @@
 
     <script id="template-chat-message" type="text/handlebars">
         <li id="message-{{id}}" data-id="{{id}}" class="message {{#user.self}}self{{/user.self}}">
-            <img src="{{user.image.data}}"></img>
+            {{#user.image.path}}<img src="{{#user.image.path}}/files/users/images/{{user.image.path}}{{/user.image.path}}">{{/user.image.path}}
             <span class="user">{{#user.self}}You{{/user.self}}{{^user.self}}{{user.name}}{{/user.self}}</span>
             {{#file}}
                 <audio controls="controls"><source src="/recordings/{{file}}" type="audio/mpeg"></source></audio>

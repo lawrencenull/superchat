@@ -8,7 +8,8 @@ var express = require('express'),
     user = require('./routes/user'),
     http = require('http'),
     path = require('path'),
-    socket_io = require('socket.io').listen(8080),
+    events = require('events'),
+    socket_io = require('socket.io').listen(8080, { log:false }),
     _ = require('underscore'),
     Backbone = require('backbone'),
     fs = require('fs'),
@@ -284,11 +285,11 @@ appFiles.init({
 // import Users
 appUsers.init({
     _: _,
-    Backbone: Backbone
+    Backbone: Backbone,
+    fs: fs
 });
 
 // import Chat
-console.log(translate);
 appChat.init({
     _: _,
     Backbone: Backbone,

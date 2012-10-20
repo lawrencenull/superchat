@@ -33,6 +33,7 @@ var AppController = Backbone.Controller.extend({
 
         mediaController.on('_mediaCaptured', function (media) {
             var user = usersController.get(socket.socket.sessionid);
+            console.log(media);
             user.image = media;
             if (user.self) { delete user.self; }
             socket.emit('userUpdated', user);

@@ -11,27 +11,15 @@ exports.init = function(d) {
       'name': 'New User',
       'locale': 'en',
       'image': {
-        'data': '/images/default-user-image.gif'
+        'path': 'default-user-image.gif'
       },
       'lastMessage': -1
     },
     initialize: function () {
-      if (this.get('name') === this.defaults.name) {
-        this.set('name', 'anon_' + this.id);
+      var t = this;
+      if (t.get('name') === t.defaults.name) {
+        t.set('name', 'anon_' + this.id);
       }
-      this.on('add') = uploadImage;
-      this.on('update:image') = uploadImage;
-    },
-    uploadImage: function (model) {
-      var file = this.convertFileToBinary(model.get('image').data),
-          path = './public/files/users/'+model.get('id');
-      fs.writeFile(path, data, function (error) {
-        if (error) {
-            t.trigger('writeToDisk', { success: false, error: error, file: file } );
-        } else {
-            t.trigger('writeToDisk', { success: true, file: file });
-            t.set('image', {path: path});
-        }
     }
   });
 
@@ -53,8 +41,39 @@ exports.init = function(d) {
           usersCollection.on('change', function (user) {
             t.trigger('_userUpdated', user.toJSON() );
           });
-
+          usersCollection.on('change:image', function (user) {
+            t.uploadImage(user);
+          });
       },
+          convertFileToBinary: function (data) {
+        var index = 'base64,';
+        var trim = data.indexOf(index) + index.length;
+        var base64 = data.substring(trim);
+        return binary = new Buffer(base64, 'base64');
+    },
+    uploadImage: function (model) {
+      console.log('>>>>>>>>>>>>>>>>>>>UPLOAD', model );
+      var t = this;
+      var data = model.get('image').data;
+      if (data) {
+        console.log('PASSED');
+        console.log(data);
+        data = t.convertFileToBinary(data);
+        var file = t.convertFileToBinary(model.get('image').data),
+        filename = model.get('id')+'.jpg',
+          path = './public/files/users/images/'+filename;
+
+
+        fs.writeFile(path, data, function (error) {
+          if (error) {
+              t.trigger('writeToDisk', { success: false, error: error, file: file } );
+          } else {
+              t.trigger('writeToDisk', { success: true, file: file });
+              model.set('image', {path:filename});
+          }
+        });
+      }
+    },
       render: function () {
           return this.usersCollection.toJSON();
       },
