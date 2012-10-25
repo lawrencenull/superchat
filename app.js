@@ -8,7 +8,7 @@ var express = require('express'),
     http = require('http'),
     path = require('path'),
     events = require('events'),
-    socket_io = require('socket.io').listen(8080, { log:false }),
+    socket_io = require('socket.io').listen(8080), //, { log:false }),
     _ = require('underscore'),
     Backbone = require('backbone'),
     fs = require('fs'),
@@ -17,21 +17,13 @@ var express = require('express'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
     appChat = require('./server/chat'),
-    appDraw = require('./server/draw');
-//, mongodb = require('mongodb');
-
-
-/**
- * Database setup
- */
-
-
-//var db = mongodb.createConnection('localhost', 'io-whiteboard');
+    appTropo = require('./server/tropo');
 
 
 /**
  * Express setup
  */
+
 
 var app = express();
 
@@ -52,185 +44,6 @@ app.configure('development', function () {
     app.use(express.errorHandler());
 });
 
-app.post('/tropo', function(req, res){
-     
-    var tropo = new TropoWebAPI();
-
-    var phoneNumber = req.body.session.from.id;
-
-    var say = new Say('Press one for English. Or two for Spanish.');
-    var choices = new Choices('1,2');
-
-    tropo.ask(choices, null, null, null, "locale", null, null, say, 60, null);
-     
-    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
-    
-    // do we need to avoid triggering hangup because it could add a user that hasn't been added yet?
-    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-     
-    res.send(TropoJSON(tropo));
-     
-});
-
-app.post('/listen', function(req, res){
-
-    var tropo = new TropoWebAPI();
-    var phoneNumber = req.query.id;
-    var localeDigit;
-    var recognizer = 'en-us';
-
-    if (req.body.result && req.body.result.actions) {
-        localeDigit = req.body.result.actions.value;
-    }
-
-    if (localeDigit && (localeDigit === '1' || localeDigit === '2')) {
-        console.log('CREATE');
-        var locale = 'en';
-        if (localeDigit === '2') {
-            locale = 'es';
-            recognizer = 'es-es';
-        }
-
-        appController.trigger('_userSessionStarted', {
-            id: phoneNumber,
-            locale: locale,
-            recognizer: recognizer,
-            image: {
-                'data': '/images/default-phone-image.gif'
-            }
-        });
-
-        tropo.say('Locale set to' + locale + '. Press pound to record a message at any time.' );
-    }
-
-    var say = new Say('');
-    var choices = new Choices(null, null, '#');
-
-    tropo.ask(choices, null, null, null, 'poll', null, null, say, 5, null);
-
-    tropo.on('continue', null, '/record?id='+phoneNumber, true);
-
-    tropo.on('incomplete', null, '/messages?id='+phoneNumber, true);
-
-    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-
-
-    res.send(TropoJSON(tropo));
- 
-});
-
-
-
-app.post('/record', function (req,res) {
-    var tropo = new TropoWebAPI();
-
-    var phoneNumber = req.query.id;
-    var userModel = appController.usersController.usersCollection.get(phoneNumber);
-    var user = userModel.toJSON();
-    var fileID = phoneNumber+"-"+new Date().getUTCMilliseconds();
-
-    var say = new Say('Press pound after recording your message.');
-
-    console.log('TROPO RECOGNIZER', user.recognizer);
-
-    var transcription = {"id":phoneNumber, "url":"http://54.243.182.246:3000/call?fileID="+fileID+"&locale="+user.locale};
-    var choices = new Choices(null,null,'#');
-    //tropo.record(null, null, true, choices, null, 7.0, 120.0, null, null, "recording", null, say, 10.0, transcription, "ftp://ftp.pickpuck.com/pickpuck.com/recording.mp3", "Agent106!", "mcpuck");
-    tropo.record(null, null, true, choices, 'audio/mp3', 5, 30, null, null, "recording", user.recognizer, say, 5, transcription, "http://54.243.182.246:3000/upload?fileID="+fileID+"&id="+phoneNumber, null, null);
-
-    tropo.on('continue', null, '/messages?id='+phoneNumber, true);
-
-    tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-
-    res.send(TropoJSON(tropo));
-});
-
-app.post('/upload', function (req,res) {
-
-    var phoneNumber = req.query.id;
-    var fileName = req.query.fileID;
-    var userModel = appController.usersController.usersCollection.get(phoneNumber);
-    var user = userModel.toJSON();
-
-    fs.readFile(req.files.filename.path, function (err, data) {
-
-      var newPath = __dirname + "/public/recordings/" + fileName;
-      fs.writeFile(newPath, data, function (err) {
-
-        appController.trigger('_chatMessageAdded', {
-            user: user,
-            message: '',
-            translations: {},
-            transcribed: false,
-            file: fileName
-        });
-
-        res.redirect("back");
-      });
-    });
-
-});
-
-app.post('/messages', function (req,res) {
-    var tropo = new TropoWebAPI();
-    var tropo_voices = {
-        'es': ['Carmen', 'Leonor', 'Jorge', 'Juan'],
-        'en': ['Allison', 'Susan', 'Vanessa', 'Veronica', 'Dave', 'Steven', 'Victor']
-    };
-
-    var phoneNumber = req.query.id;
-
-
-        tropo.on('continue', null, '/listen?id='+phoneNumber, null);
-        tropo.on('hangup', null, '/hangup?id='+phoneNumber, true);
-
-    var userModel = appController.usersController.usersCollection.get(phoneNumber);
-    var user = userModel.toJSON();
-
-    var skipEverything = false;
-
-    var messagesCollection = appController.chatController.messagesCollection;
-    var messagesSinceLastMessage = messagesCollection.filter(function (message, index) {
-        return (index > user.lastMessage)
-            && ( message.get('user').id !== phoneNumber );
-    });
-
-    _.each(messagesSinceLastMessage, function (messageModel) {
-        //value, as, name, required, voice
-
-        var message = messageModel.toJSON();
-
-        console.log('THIS IS HTE MESSAGE', message);
-
-        var says = message.translations[user.locale];
-
-        if (message.file) {
-            says = 'http://54.243.182.246:3000' + message.file;
-        }
-
-        tropo.say(says, null, null, null, tropo_voices[user.locale][3]);
-    });
-
-    userModel.set('lastMessage', messagesCollection.length-1);
-
-    res.send(TropoJSON(tropo));
-});
-
-app.post('/hangup', function (req,res) {
-    var tropo = new TropoWebAPI();
-
-    var phoneNumber = req.query.id;
-
-    console.log('HANGUP', phoneNumber);
-
-    appController.usersController.remove({id:phoneNumber});
-
-    res.send(TropoJSON(tropo));
-});
-
-
-app.get('/', routes.index);
-
 http.createServer(app)
     .listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
@@ -238,10 +51,9 @@ http.createServer(app)
 
 
 /**
-  Backbone setup
+  Extend Backbone
   */
 
-// Add update method to all models
 
 Backbone.Controller = Backbone.View;
 
@@ -260,45 +72,31 @@ Backbone.Model.prototype.update = function(model){
 };
 
 // Make Backbone DOM-independent
-
 Backbone.View.prototype._ensureElement = function () {};
 
-// import Files
-appFiles.init({
-    _: _,
-    Backbone: Backbone,
-    fs: fs
-});
 
-// import Users
-appUsers.init({
-    _: _,
-    Backbone: Backbone,
-    fs: fs
-});
+/**
+  Application Start
+  */
 
-// import Chat
-appChat.init({
-    _: _,
-    Backbone: Backbone,
-    translate: translate
-});
 
-appDraw.init({
-    _: _,
-    Backbone: Backbone
-});
+// initialize app modules
 
-// App
+appFiles.init({ _: _, Backbone: Backbone, fs: fs });
+appUsers.init({ _: _, Backbone: Backbone, fs: fs });
+ appChat.init({ _: _, Backbone: Backbone, translate: translate });
+
+// App logic
+
 var AppController = Backbone.Model.extend({
     initialize: function () {
-        var t = this;
-        var filesController = this.filesController =new FilesController();
-        var usersController = this.usersController = new UsersController();
-        var chatController = this.chatController = new ChatController();
-        var drawController = this.drawController = new DrawController();
+        var t = this,
+            filesController = this.filesController =new FilesController(),
+            usersController = this.usersController = new UsersController(),
+            chatController = this.chatController = new ChatController();
 
-        // file listeners
+        // manage files
+
         filesController.on('_newFile', function (file) {
             t.notify( 'newFile', file );
         });
@@ -309,8 +107,12 @@ var AppController = Backbone.Model.extend({
                 t.notify('error', params.error);
             }
         });
+        this.on('_fileAdded', function (file) {
+            filesController.trigger('fileAdded', file);
+        });
 
-        // user listeners
+        // manage users
+
         usersController.on('_userAdded', function (user) {
             t.notify('userAdded', user);
         });
@@ -321,11 +123,6 @@ var AppController = Backbone.Model.extend({
             t.notify('userUpdated', user);
             chatController.update(user, { type: 'user' });
         });
-
-        // socket notifications
-        this.on('_fileAdded', function (file) {
-            filesController.trigger('fileAdded', file);
-        });
         this.on('_userSessionStarted', function (user) {
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
@@ -335,94 +132,40 @@ var AppController = Backbone.Model.extend({
         this.on('_userSessionEnded', function (user) {
             usersController.remove(user);
         });
-
         this.on('_userUpdated', function (user) {
             usersController.update(user);
         });
 
-        // chat listeners
+        // manage chat messages
+
         this.on('_chatMessageAdded', function (message) {
             chatController.trigger('messageAdded', message);
         });
-
         this.on('_chatMessageUpdated', function (message) {
             chatController.update(message);
         });
-
         chatController.on('_chatMessageAdded', function (message) {
-                        console.log('chat message added', message);
             t.notify('chatMessageAdded', message);
         });
-
         chatController.on('_chatMessageUpdated', function (message) {
             t.notify('chatMessageUpdated', message);
         });
 
-        drawController.on('_lineAdded', function (line) {
-            t.notify('newLineCoordinate', line);
-        });
-
+        // reload the client on server restart
         this.notify('reload');
 
     },
     notify: function (message, data) {
+        // broadcast message to all users
         socket_io.sockets.emit('_' + message, data);
     },
     message: function (user, message, data) {
+        // send message to a specific user
         socket_io.sockets.socket(user).emit('_' + message, data);
     }
 });
 
 appController = new AppController();
-
-/**
-  Tropo setup
-  */
-
-app.post('/call', function (req, res) { 
-    var tropo = new TropoWebAPI();
-
-    console.log('TRANSCRIPTION', req.body.result);
-
-    var phoneNumber = req.body.result.identifier;
-    var locale = req.query.locale;
-    var fileID = req.query.fileID;
-
-    /*var user = appController.usersController.usersCollection.get(phoneNumber);
-
-    if (user) {
-        user = user.toJSON();
-    } else {
-        user = {
-            id: phoneNumber,
-            locale: locale
-        };
-    }
-
-    var messagesCollection = appController.chatController.messagesCollection;
-    var userMessagesCollection = messagesCollection.filter(function (message, index) {
-        return message.get('user').id === phoneNumber;
-    });*/
-
-    var messageModel = appController.chatController.messagesCollection.where({ file: fileID });
-
-    if (messageModel.length > 0) {
-        
-        var message = messageModel[0].toJSON();
-        message.message = req.body.result.transcription;
-        message.transcribed = true;
-
-        appController.chatController.update(message); 
-
-    } else {
-        console.log('TRANSCRIPTION FAILURE');
-    }
-
-    
-    tropo.on("continue", null, "/listen?id="+phoneNumber, true);
-     
-    res.send(TropoJSON(tropo));
-});
 
 
 /**
@@ -437,7 +180,6 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_userSessionEnded', {id:socket.id});
     });
     socket.on('fileAdded', function (data) {
-        console.log(data);
         appController.trigger('_fileAdded', data);
     });
     socket.on('chatMessageAdded', function (data) {
@@ -445,7 +187,6 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_chatMessageAdded', data);
     });
     socket.on('chatMessageUpdated', function (data) {
-        console.log('message updated from client!!!!!!!!!!!!');
         appController.trigger('_chatMessageUpdated', data);
     });
     socket.on('reloadRequest', function (data) {
@@ -458,3 +199,21 @@ socket_io.sockets.on('connection', function (socket) {
         appController.trigger('_newLineCoordinate', data);
     });
 });
+
+
+/**
+  Routing
+  */
+
+
+// phone call routes
+app.post('/tropo', appTropo.init);
+app.post('/listen', appTropo.listen);
+app.post('/record', appTropo.record);
+app.post('/upload', appTropo.upload);
+app.post('/messages', appTropo.messages);
+app.post('/transcribe', appTropo.transcribe);
+app.post('/hangup', appTropo.hangup);
+
+// web routes
+app.get('/', routes.index);
