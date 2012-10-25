@@ -6,8 +6,9 @@
 * Upload your picture using your webcam with HTML5 getUserMedia (no Flash!)
 * Call in to record or listen to chat messages in either English or Spanish
 
-* Most definitely requires Chrome for the sweet, sweet goodness
-* Calling in to the phone number requires the server to be running on my AWS instance - give me a shout and I can turn it on
+Most definitely requires Chrome for the sweet, sweet goodness.
+
+Calling in to the phone number requires the server to be running on my AWS instance - give me a shout and I can turn it on!
 
 ## Dependencies
 
