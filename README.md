@@ -1,6 +1,6 @@
-=Superchat=
+# Superchat
 
-==Dependencies==
+## Dependencies
 
 * Node.js
 * NPM
