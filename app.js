@@ -5,7 +5,6 @@
 
 var express = require('express'),
     routes = require('./routes'),
-    user = require('./routes/user'),
     http = require('http'),
     path = require('path'),
     events = require('events'),
@@ -34,15 +33,6 @@ var express = require('express'),
  * Express setup
  */
 
-var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-    next();
-};
-
-
 var app = express();
 
 app.configure(function () {
@@ -54,7 +44,6 @@ app.configure(function () {
     app.use(express.logger('dev'));
     app.use(express.bodyParser());
     app.use(express.methodOverride());
-    app.use(allowCrossDomain);
     app.use(app.router);
     app.use(express.static(path.join(__dirname, 'public')));
 });
@@ -240,8 +229,7 @@ app.post('/hangup', function (req,res) {
 });
 
 
-app.get('/', routes.index);  
-app.get('/users', user.list);
+app.get('/', routes.index);
 
 http.createServer(app)
     .listen(app.get('port'), function () {
