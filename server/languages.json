@@ -1,0 +1,122 @@
+[
+  {
+    "display": "English (U.S.)",
+    "abbreviation": "en",
+    "voices": ["Allison", "Susan", "Vanessa", "Veronica", "Dave", "Steven", "Victor"]
+  },
+  {
+    "display": "English (British)",
+    "abbreviation": "en",
+    "voices": ["Elizabeth", "Kate", "Simon"]
+  },
+  {
+    "display": "English (Australian)",
+    "abbreviation": "en",
+    "voices": ["Grace", "Alan"]
+  },
+  {
+    "display": "Catalan",
+    "abbreviation": "ca",
+    "voices": ["Montserrat",  "Jordi"]
+  },
+  {
+    "display": "Danish",
+    "abbreviation": "da",
+    "voices": ["Frida", "Magnus"]
+  },
+  {
+    "display": "Dutch",
+    "abbreviation": "nl",
+    "voices": ["Saskia", "Willem"]
+  },
+  {
+    "display": "Finnish",
+    "abbreviation": "fi",
+    "voices": ["Milla", "Mikko"]
+  },
+  {
+    "display": "French",
+    "abbreviation": "fr",
+    "voices": ["Florence", "Juliette", "Bernard"]
+  },
+  {
+    "display": "French (Canadian)",
+    "abbreviation": "fr",
+    "voices": ["Charlotte", "Olivier"]
+  },
+  {
+    "display": "Galacian",
+    "abbreviation": "gl",
+    "voices": ["Carmela"]
+  },
+  {
+    "display": "German",
+    "abbreviation": "de",
+    "voices": ["Katrin", "Stefan"]
+  },
+  {
+    "display": "Greek",
+    "abbreviation": "el",
+    "voices": ["Afroditi", "Nikos"]
+  },
+  {
+    "display": "Italian",
+    "abbreviation": "it",
+    "voices": ["Giulia", "Paola", "Silvana", "Valentina", "Luca", "Marcello", "Matteo", "Roberto"]
+  },
+  {
+    "display": "Mandarian Chinese",
+    "abbreviation": "zh",
+    "voices": ["Linlin", "Lisheng"]
+  },
+  {
+    "display": "Norwegian",
+    "abbreviation": "no",
+    "voices": ["Vilde", "Henrik"]
+  },
+  {
+    "display": "Polish",
+    "abbreviation": "pl",
+    "voices": ["Zosia", "Krzysztof"]
+  },
+  {
+    "display": "Portugese",
+    "abbreviation": "pt",
+    "voices": ["Amalia", "Eusebio"]
+  },
+  {
+    "display": "Portugese (Brazilian)",
+    "abbreviation": "pt",
+    "voices": ["Fernanda", "Gabriela", "Felipe"]
+  },
+  {
+    "display": "Russian",
+    "abbreviation": "ru",
+    "voices": ["Olga",  "Dmitri"]
+  },
+  {
+    "display": "Spanish (Castilian)",
+    "abbreviation": "es",
+    "voices": ["Carmen", "Leonor"  "Jorge", "Juan"]
+  },
+  {
+    "display": "Spanish (Argentine)",
+    "abbreviation": "es",
+    "voices": ["Diego"]
+  },
+  {
+    "display": "Spanish (Chilean)",
+    "abbreviation": "es",
+    "voices": ["Francisca"]
+  },
+  {
+    "display": "Spanish (Mexican)",
+    "abbreviation": "es",
+    "voices": ["Soledad", "Ximena", "Esperanza", "Carlos"]
+  },
+  {
+    "display": "Swedish",
+    "abbreviation": "sw",
+    "voices": ["Annika", "Sven"]
+  }
+]
