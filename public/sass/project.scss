@@ -104,9 +104,14 @@ h1, h2, h3{
     width: 99.9%;
 }
 #chat-messages-list > li {
+    @include clearfix;
     background-color: #deffe0;
-    height: 100px;
+    display: block;
     padding: 5px;
+    img {
+        height: 100px;
+        width: auto;
+    }
 }
 #chat-messages-list > li:nth-child(odd) {
     background-color: #a9ffad;
@@ -116,6 +121,18 @@ h1, h2, h3{
 }
 #chat-messages-list > li:nth-child(odd).self {
     background-color: #faffd3;
+}
+#chat-messages-list > li.upload {
+    background-color: #A69DA1;
+    img.upload {
+        float: none;
+        display: block;
+        height: auto;
+        width: auto;
+    }
+}
+#chat-messages-list > li:nth-child(odd).upload {
+    background-color: #C2C2C2;
 }
 #chat-messages-list > li > .user {
     font-weight: bold;

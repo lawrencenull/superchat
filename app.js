@@ -98,7 +98,18 @@ var AppController = Backbone.Model.extend({
         // manage files
 
         filesController.on('_newFile', function (file) {
+            // why is this coming through as a model and not JSON?
+            var image = false;
+            if ( _.contains( ['gif', 'jpg', 'jpeg', 'png'], file.toJSON().name.split('.').pop() ) ) {
+                image = true;
+            }
+            var user = t.usersController.usersCollection.get(file.toJSON().user);
             t.notify( 'newFile', file );
+            t.chatController.add({
+                upload: file,
+                image: image,
+                user: user
+            });
         });
         filesController.on('_error', function (params) {
             if (params.user) {

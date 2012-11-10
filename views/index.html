@@ -92,7 +92,7 @@
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message-{{id}}" data-id="{{id}}" class="message {{#user.self}}self{{/user.self}}">
+        <li id="message-{{id}}" data-id="{{id}}" class="message{{#user.self}} self{{/user.self}}{{#upload}} upload{{/upload}}">
             {{#user.image.path}}
                 <img src="{{#user.image.path}}/files/users/images/{{user.image.path}}{{/user.image.path}}">
             {{/user.image.path}}
@@ -105,6 +105,14 @@
                     <source src="/recordings/{{file}}" type="audio/mpeg"></source>
                 </audio>
             {{/file}}
+            {{#upload}}
+                {{#image}}
+                    <img class="upload" src="/files/{{upload.name}}">
+                {{/image}}
+                {{^image}}
+                    <p>New file: <a href="/files/{{upload.name}}">{{upload.name}}</a></p>
+                {{/image}}
+            {{/upload}}
             <p title="{{message}}">
                 {{#file}}
                     {{^transcribed}}(Transcribing audio...){{/transcribed}}
