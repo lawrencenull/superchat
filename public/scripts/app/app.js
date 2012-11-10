@@ -10,12 +10,12 @@ var AppController = Backbone.Controller.extend({
 
         filesController.on('_fileAdded', function (file) {
             file.user = socket.socket.sessionid;
-            console.log(file);
             socket.emit('fileAdded', file);
         });
 
         this.on('newFile', function (file) {
             filesController.add(file);
+            console.log('a file', file);
         });
 
         // manage users
@@ -74,7 +74,7 @@ var AppController = Backbone.Controller.extend({
             // fix this later
             if (!message.user) {
                 message.user = usersController.get(socket.socket.sessionid);
-                delete message.user.self;
+                delete message.user.self; // bad practice
                 socket.emit('chatMessageAdded', message);
             }
         });
@@ -91,6 +91,7 @@ var AppController = Backbone.Controller.extend({
             if (message.user && message.user.id === socket.socket.sessionid) {
                 message.user.self = true;
             }
+            console.log('a Message:', message);
             chatController.add(message);
         });
     }
