@@ -100,6 +100,9 @@
                 {{#user.self}}You{{/user.self}}
                 {{^user.self}}{{user.name}}{{/user.self}}
             </span>
+            <span class="timestamp">
+                {{date}}
+            </span>
             {{#file}}
                 <audio controls="controls">
                     <source src="/recordings/{{file}}" type="audio/mpeg"></source>
@@ -135,6 +138,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.2/backbone-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/0.5.0-dev/mustache.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js"></script>
+    <script src="/scripts/libs/moment.js"></script>
     <script src="/scripts/libs/backbone-extend.js"></script>
 
     <!-- app -->

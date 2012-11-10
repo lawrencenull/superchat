@@ -45,6 +45,9 @@ var ChatMessagesListView = Backbone.View.extend({
             message.translation = message.message;
         }        
 
+        message.date = moment( message.timestamp ).format("h:mma");
+        console.log('date', message.date);
+
         return Mustache.render(this.template, message);
     },
     add: function (message) {
@@ -68,7 +71,7 @@ var ChatController = Backbone.Controller.extend({
             chatMessagesListView = t.chatMessagesListView = new ChatMessagesListView();
 
         chatMessagesListView.on('_chatMessageAdded', function (message) {
-            t.trigger('_chatMessageAdded', {message:message});
+            t.trigger('_chatMessageAdded', {message:message, timestamp: new Date().getTime() });
         });
 
         chatCollection.on('add', function (message) {

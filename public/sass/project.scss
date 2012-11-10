@@ -112,6 +112,9 @@ h1, h2, h3{
         height: 100px;
         width: auto;
     }
+    .timestamp {
+    float: right;
+    }
 }
 #chat-messages-list > li:nth-child(odd) {
     background-color: #a9ffad;
