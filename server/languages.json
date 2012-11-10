@@ -97,7 +97,7 @@
   {
     "display": "Spanish (Castilian)",
     "abbreviation": "es",
-    "voices": ["Carmen", "Leonor"  "Jorge", "Juan"]
+    "voices": ["Carmen", "Leonor", "Jorge", "Juan"]
   },
   {
     "display": "Spanish (Argentine)",

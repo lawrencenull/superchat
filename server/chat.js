@@ -1,5 +1,7 @@
 // Chat
 
+var languages = require('./languages.json');
+
 exports.init = function(d) {
 
 	var _ = d._

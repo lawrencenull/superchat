@@ -45,11 +45,11 @@ exports.init = function(d) {
             t.uploadImage(user);
           });
       },
-          convertFileToBinary: function (data) {
-        var index = 'base64,';
-        var trim = data.indexOf(index) + index.length;
-        var base64 = data.substring(trim);
-        return binary = new Buffer(base64, 'base64');
+    convertFileToBinary: function (data) {
+      var index = 'base64,';
+      var trim = data.indexOf(index) + index.length;
+      var base64 = data.substring(trim);
+      return binary = new Buffer(base64, 'base64');
     },
     uploadImage: function (model) {
       console.log('>>>>>>>>>>>>>>>>>>>UPLOAD', model );
@@ -74,20 +74,20 @@ exports.init = function(d) {
         });
       }
     },
-      render: function () {
-          return this.usersCollection.toJSON();
-      },
-      update: function (user) {
-          var userModel = this.usersCollection.where({id:user.id})[0];
-          userModel.update(user);
-      },
-      add: function (user) {
-          this.usersCollection.add(user);
-      },
-      remove: function (user) {
-          var userModel = this.usersCollection.where({id:user.id})[0];
-          this.usersCollection.remove(userModel);
-      }
+    render: function () {
+        return this.usersCollection.toJSON();
+    },
+    update: function (user) {
+        var userModel = this.usersCollection.where({id:user.id})[0];
+        userModel.update(user);
+    },
+    add: function (user) {
+        this.usersCollection.add(user);
+    },
+    remove: function (user) {
+        var userModel = this.usersCollection.where({id:user.id})[0];
+        this.usersCollection.remove(userModel);
+    }
   });
 
 };

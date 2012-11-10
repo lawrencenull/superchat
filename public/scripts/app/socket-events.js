@@ -22,6 +22,10 @@ socket.on( '_getAllUsers', function (users) {
     });
 });
 
+socket.on( '_getAllLanguages', function (languages) {
+    appController.languages = languages;
+});
+
 socket.on( '_currentUserModified', function (user) {
     user.self = 'true';
     appController.trigger('newUser', user);

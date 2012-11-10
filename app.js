@@ -14,6 +14,7 @@ var express = require('express'),
     fs = require('fs'),
     tropo_webapi = require('tropo-webapi'),
     translate = require('node-google-translate'),
+    languages = require('./server/languages.json'),
     appFiles = require('./server/files'),
     appUsers = require('./server/users'),
     appChat = require('./server/chat'),
@@ -23,7 +24,6 @@ var express = require('express'),
 /**
  * Express setup
  */
-
 
 var app = express();
 
@@ -84,7 +84,7 @@ Backbone.View.prototype._ensureElement = function () {};
 
 appFiles.init({ _: _, Backbone: Backbone, fs: fs });
 appUsers.init({ _: _, Backbone: Backbone, fs: fs });
- appChat.init({ _: _, Backbone: Backbone, translate: translate });
+appChat.init({ _: _, Backbone: Backbone, translate: translate });
 
 // App logic
 
@@ -138,6 +138,7 @@ var AppController = Backbone.Model.extend({
             t.message(user.id, 'getAllUsers', usersController.render());
             t.message(user.id, 'getAllFiles', filesController.render());
             t.message(user.id, 'getAllMessages', chatController.render());
+            t.message(user.id, 'getAllLanguages', languages);
             usersController.add(user);
         });
         this.on('_userSessionEnded', function (user) {

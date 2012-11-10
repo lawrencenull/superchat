@@ -39,6 +39,15 @@ var UsersListView = Backbone.View.extend({
         } else {
             user[this.$el.find('#user-'+user.id).find('.locale').val()] = true;
         }
+
+        user.languages = appController.languages;
+
+        _.chain(user.languages)
+            .where({ "abbreviation": user.locale })
+            .first()
+            .value()
+            .selected = true;
+
         return Mustache.render(this.template, user);
     },
     add: function (user) {
