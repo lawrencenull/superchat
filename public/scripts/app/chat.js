@@ -36,14 +36,20 @@ var ChatMessagesListView = Backbone.View.extend({
 
         // determine the language to show based on user preference
 
-        if (self.length > 0) {
-            // if self exists (after server adds this session to userCollection)
-            self = self[0].toJSON();
-            message.translation = message.translations[self.locale];
-        } else {
-            // show original message (if on initial load)
-            message.translation = message.message;
-        }        
+        if (message.message) {
+            if (self.length > 0) {
+                // if self exists (after server adds this session to userCollection)
+                self = self[0].toJSON();
+                message.translation = message.translations[self.locale];
+            } else {
+                // show original message (if on initial load)
+                message.translation = message.message;
+            }    
+        }
+            
+
+        message.date = moment( message.timestamp ).format("h:mma");
+        console.log('date', message.date);
 
         return Mustache.render(this.template, message);
     },
@@ -68,7 +74,24 @@ var ChatController = Backbone.Controller.extend({
             chatMessagesListView = t.chatMessagesListView = new ChatMessagesListView();
 
         chatMessagesListView.on('_chatMessageAdded', function (message) {
-            t.trigger('_chatMessageAdded', {message:message});
+            var message = message;
+
+            // if command
+            if (message.substring(0, 1) === '/') {
+                // split on space after the slash
+
+                var split = message.substring(1).split(' '),
+                    command = split[0],
+                    parameters = message.substring( message.indexOf(command) + command.length + 1 );
+
+                t.trigger('_chatCommandExecuted', command, parameters);
+                // _.has( chatFunctionsController, command );
+
+
+            // else message
+            } else {
+                t.trigger('_chatMessageAdded', {message:message, timestamp: new Date().getTime() });
+            }
         });
 
         chatCollection.on('add', function (message) {
@@ -104,6 +127,13 @@ var ChatController = Backbone.Controller.extend({
         var t = this;
         t.chatCollection.each(function (chat) {
             t.chatMessagesListView.update( chat.toJSON() );
+        });
+    },
+    renderHelp: function () {
+        this.add({
+            system: {
+                message: 'Help is on the way!'
+            }
         });
     }
 });

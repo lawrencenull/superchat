@@ -13,7 +13,8 @@ exports.init = function(d) {
             translations: {
                 'en': '(Translating...)',
                 'es': '(Translating...)'
-            }
+            },
+            'timestamp': 'New Date'
     	},
     	initialize: function () {
             this.set('id', this.cid);

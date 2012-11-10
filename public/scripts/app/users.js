@@ -76,7 +76,7 @@ var UsersController = Backbone.Controller.extend({
         });
 
         usersListView.on('_update', function (user) {
-            t.edit(user)
+            t.edit(user);
         });
 
         usersCollection.on('add', function (user) {
@@ -126,5 +126,16 @@ var UsersController = Backbone.Controller.extend({
             userModel[attribute] = value;
         });
         t.trigger('_userUpdated', userModel);
-    }
+    },
+    updateLocale: function (locale) {
+        var $el = this.usersListView.$el.find('.self .locale option[value="'+locale+'"]');
+        if ($el.length > 0) {
+            $el.siblings().removeAttr('selected').end().attr('selected', 'selected').trigger('change');   
+        } else {
+            return {
+                message: locale + ' is not a supported language.',
+                error: true
+            }
+        }
+    } // need name updateName
 });

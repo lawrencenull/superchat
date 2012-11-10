@@ -4,7 +4,8 @@ var AppController = Backbone.Controller.extend({
             filesController = t.filesController = new FilesController(),
             usersController = t.usersController = new UsersController(),
             chatController = t.chatController = new ChatController(),
-            mediaController = t.mediaController = new MediaController();
+            mediaController = t.mediaController = new MediaController(),
+            commandsController = t.commandsController = new CommandsController;
 
         // manage files
 
@@ -59,7 +60,7 @@ var AppController = Backbone.Controller.extend({
             socket.emit('userUpdated', user);
         });
 
-        usersController.on('_requireMediaUpload', function () { 
+        usersController.on('_requireMediaUpload', function () {
             mediaController.capture();
         });
 
@@ -70,9 +71,9 @@ var AppController = Backbone.Controller.extend({
         });
 
         chatController.on('_chatMessageAdded', function (message) {
-            // messages that come through without a user are assumed to be self
-            // fix this later
+            // if from self [assume since no user set - kinda jank]
             if (!message.user) {
+                // emit message
                 message.user = usersController.get(socket.socket.sessionid);
                 delete message.user.self; // bad practice
                 socket.emit('chatMessageAdded', message);
@@ -93,6 +94,40 @@ var AppController = Backbone.Controller.extend({
             }
             console.log('a Message:', message);
             chatController.add(message);
+        });
+
+        // chat functions
+
+        chatController.on('_chatCommandExecuted', function (command, parameters) {
+
+            if ( _.has(commandsController.constructor.prototype, command) && command !== 'initialize' ) {
+                commandsController[command](parameters);
+            } else {
+                t.chatController.add({
+                    system: {
+                        error: true,
+                        message: command + ' is not a function.'
+                    }
+                });
+            }
+        });
+
+        commandsController.on('_execute', function (controller, method, parameters) {
+            if ( _.has( t[controller+'Controller'].constructor.prototype, method) && method !== 'initialize' ) {
+                var result = t[controller+'Controller'][method](parameters);
+                if ( result ) {
+                    t.chatController.add({
+                        system: result
+                    });
+                }
+            } else {
+                console.log( 'Not a valid method.' );
+            }
+        });
+
+        commandsController.on('_trigger', function (controller, method, parameters) {
+            console.log( controller+'Controller', t[controller+'Controller'], method, parameters);
+            t[controller+'Controller'].trigger(method, parameters);
         });
     }
 });

@@ -5188,27 +5188,31 @@ h1, h2, h3 {
   height: 100px;
   width: auto;
 }
+/* line 115, ../sass/project.scss */
+#chat-messages-list > li .timestamp {
+  float: right;
+}
 
-/* line 116, ../sass/project.scss */
+/* line 119, ../sass/project.scss */
 #chat-messages-list > li:nth-child(odd) {
   background-color: #a9ffad;
 }
 
-/* line 119, ../sass/project.scss */
+/* line 122, ../sass/project.scss */
 #chat-messages-list > li.self {
   background-color: yellow;
 }
 
-/* line 122, ../sass/project.scss */
+/* line 125, ../sass/project.scss */
 #chat-messages-list > li:nth-child(odd).self {
   background-color: #faffd3;
 }
 
-/* line 125, ../sass/project.scss */
+/* line 128, ../sass/project.scss */
 #chat-messages-list > li.upload {
   background-color: #A69DA1;
 }
-/* line 127, ../sass/project.scss */
+/* line 130, ../sass/project.scss */
 #chat-messages-list > li.upload img.upload {
   float: none;
   display: block;
@@ -5216,39 +5220,39 @@ h1, h2, h3 {
   width: auto;
 }
 
-/* line 134, ../sass/project.scss */
+/* line 137, ../sass/project.scss */
 #chat-messages-list > li:nth-child(odd).upload {
   background-color: #C2C2C2;
 }
 
-/* line 137, ../sass/project.scss */
+/* line 140, ../sass/project.scss */
 #chat-messages-list > li > .user {
   font-weight: bold;
 }
 
-/* line 140, ../sass/project.scss */
+/* line 143, ../sass/project.scss */
 #chat-messages-list > li > .user:after {
   content: ':';
 }
 
-/* line 144, ../sass/project.scss */
+/* line 147, ../sass/project.scss */
 #webcam,
 #webcam-feed {
   margin-top: 50px;
   display: none;
 }
 
-/* line 148, ../sass/project.scss */
+/* line 151, ../sass/project.scss */
 #webcam.open {
   display: block;
 }
 
-/* line 151, ../sass/project.scss */
+/* line 154, ../sass/project.scss */
 #snapshot {
   display: block;
 }
 
-/* line 154, ../sass/project.scss */
+/* line 157, ../sass/project.scss */
 ul#files-list {
   list-style-type: none;
 }
