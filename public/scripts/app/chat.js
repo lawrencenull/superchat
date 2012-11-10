@@ -71,7 +71,24 @@ var ChatController = Backbone.Controller.extend({
             chatMessagesListView = t.chatMessagesListView = new ChatMessagesListView();
 
         chatMessagesListView.on('_chatMessageAdded', function (message) {
-            t.trigger('_chatMessageAdded', {message:message, timestamp: new Date().getTime() });
+            var message = message;
+
+            // if command
+            if (message.substring(0, 1) === '/') {
+                // split on space after the slash
+                                
+                var split = message.substring(1).split(' '),
+                    command = split[0],
+                    parameters = message.substring( message.indexOf(command) + command.length );
+
+                t.trigger('_chatCommandExecuted', command, parameters);
+                // _.has( chatFunctionsController, command );
+
+
+            // else message
+            } else {
+                t.trigger('_chatMessageAdded', {message:message, timestamp: new Date().getTime() });
+            }
         });
 
         chatCollection.on('add', function (message) {

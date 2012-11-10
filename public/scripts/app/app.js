@@ -4,7 +4,8 @@ var AppController = Backbone.Controller.extend({
             filesController = t.filesController = new FilesController(),
             usersController = t.usersController = new UsersController(),
             chatController = t.chatController = new ChatController(),
-            mediaController = t.mediaController = new MediaController();
+            mediaController = t.mediaController = new MediaController(),
+            commandsController = t.commandsController = new CommandsController;
 
         // manage files
 
@@ -70,9 +71,9 @@ var AppController = Backbone.Controller.extend({
         });
 
         chatController.on('_chatMessageAdded', function (message) {
-            // messages that come through without a user are assumed to be self
-            // fix this later
+            // if from self [assume since no user set - kinda jank]
             if (!message.user) {
+                // emit message
                 message.user = usersController.get(socket.socket.sessionid);
                 delete message.user.self; // bad practice
                 socket.emit('chatMessageAdded', message);
@@ -93,6 +94,17 @@ var AppController = Backbone.Controller.extend({
             }
             console.log('a Message:', message);
             chatController.add(message);
+        });
+
+        // chat functions
+
+        chatController.on('_chatCommandExecuted', function (command, parameters) {
+
+            if ( _.has(commandsController.constructor.prototype, command) && command !== 'initialize' ) {
+                commandsController[command]();
+            } else {
+                alert('badtest');
+            }
         });
     }
 });
