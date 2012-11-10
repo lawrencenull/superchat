@@ -1,8 +1,16 @@
 var CommandsController = Backbone.Controller.extend({
     initialize: function () {
-        var t = this;
     },
-    add: function () {
-        alert('test');
+    lang: function (parameters) {
+        this.trigger('_execute', 'users', 'updateLocale', parameters);
+    },
+    '?': function () {
+        this.trigger('_execute', 'chat', 'renderHelp');
+    },
+    'help': function () {
+        this.trigger('_execute', 'chat', 'renderHelp');
+    },
+    'name': function (parameters) {
+        this.trigger('_execute', 'users', 'updateName', parameters);
     }
 });

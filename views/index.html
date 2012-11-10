@@ -92,13 +92,14 @@
     </script>
 
     <script id="template-chat-message" type="text/handlebars">
-        <li id="message-{{id}}" data-id="{{id}}" class="message{{#user.self}} self{{/user.self}}{{#upload}} upload{{/upload}}">
+        <li id="message-{{id}}" data-id="{{id}}" class="message{{#user.self}} self{{/user.self}}{{#upload}} upload{{/upload}}{{#system}} system{{#error}} error{{/error}}{{/system}}">
             {{#user.image.path}}
                 <img src="{{#user.image.path}}/files/users/images/{{user.image.path}}{{/user.image.path}}">
             {{/user.image.path}}
             <span class="user">
                 {{#user.self}}You{{/user.self}}
                 {{^user.self}}{{user.name}}{{/user.self}}
+                {{#system}}System{{/system}}
             </span>
             <span class="timestamp">
                 {{date}}
@@ -127,6 +128,9 @@
                         <a href="#" class="fix">(Fix transcription?)</a>
                     {{/transcribed}}
                 {{/file}}
+                {{#system}}
+                    {{message}}
+                {{/system}}
             </p>
         </li>
     </script>

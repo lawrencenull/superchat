@@ -60,7 +60,7 @@ var AppController = Backbone.Controller.extend({
             socket.emit('userUpdated', user);
         });
 
-        usersController.on('_requireMediaUpload', function () { 
+        usersController.on('_requireMediaUpload', function () {
             mediaController.capture();
         });
 
@@ -101,10 +101,33 @@ var AppController = Backbone.Controller.extend({
         chatController.on('_chatCommandExecuted', function (command, parameters) {
 
             if ( _.has(commandsController.constructor.prototype, command) && command !== 'initialize' ) {
-                commandsController[command]();
+                commandsController[command](parameters);
             } else {
-                alert('badtest');
+                t.chatController.add({
+                    system: {
+                        error: true,
+                        message: command + ' is not a function.'
+                    }
+                });
             }
+        });
+
+        commandsController.on('_execute', function (controller, method, parameters) {
+            if ( _.has( t[controller+'Controller'].constructor.prototype, method) && method !== 'initialize' ) {
+                var result = t[controller+'Controller'][method](parameters);
+                if ( result ) {
+                    t.chatController.add({
+                        system: result
+                    });
+                }
+            } else {
+                console.log( 'Not a valid method.' );
+            }
+        });
+
+        commandsController.on('_trigger', function (controller, method, parameters) {
+            console.log( controller+'Controller', t[controller+'Controller'], method, parameters);
+            t[controller+'Controller'].trigger(method, parameters);
         });
     }
 });
